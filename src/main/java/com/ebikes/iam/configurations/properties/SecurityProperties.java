@@ -12,6 +12,6 @@ import java.util.List;
 @Validated
 @Data
 public class SecurityProperties {
-    private List<String> publicEndpoints;
-    private List<String> scopes;
+  private List<String> publicEndpoints;
+  private List<String> scopes;
 }

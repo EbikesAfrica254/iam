@@ -15,19 +15,19 @@ import java.time.ZoneOffset;
 @SuperBuilder
 public abstract class SoftDeletableEntity extends BaseEntity {
 
-    @Column(name = "deleted_at", columnDefinition = "TIMESTAMPTZ")
-    protected OffsetDateTime deletedAt;
+  @Column(name = "deleted_at", columnDefinition = "TIMESTAMPTZ")
+  protected OffsetDateTime deletedAt;
 
-    public boolean isDeleted() {
-        return deletedAt != null;
-    }
+  public boolean isDeleted() {
+    return deletedAt != null;
+  }
 
-    public void softDelete() {
-        if (isDeleted()) {
-            throw new IllegalStateException(
-                    String.format(
-                            "Entity %s (id=%s) is already deleted", getClass().getSimpleName(), getId()));
-        }
-        this.deletedAt = OffsetDateTime.now(ZoneOffset.UTC);
+  public void softDelete() {
+    if (isDeleted()) {
+      throw new IllegalStateException(
+          String.format(
+              "Entity %s (id=%s) is already deleted", getClass().getSimpleName(), getId()));
     }
+    this.deletedAt = OffsetDateTime.now(ZoneOffset.UTC);
+  }
 }

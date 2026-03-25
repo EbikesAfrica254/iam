@@ -7,14 +7,6 @@ spring:
   application:
     name: ebikes-iam
 
-  cache:
-    redis:
-      cache-null-values: false
-      enable-statistics: true
-      key-prefix: "iam:"
-      time-to-live: ${CACHE_TTL}
-    type: redis
-
   cloud:
     function:
       definition: incomingEventConsumer
@@ -99,9 +91,6 @@ spring:
       cache:
         cachecontrol:
           max-age: PT1H
-
-encryption:
-  key: ${ENCRYPTION_KEY}
 
 keycloak:
   client-id: ${KEYCLOAK_CLIENT_ID}

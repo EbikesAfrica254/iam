@@ -15,19 +15,17 @@ import java.util.UUID;
 
 @Repository
 public interface TokenRepository
-        extends JpaRepository<Token, UUID>, JpaSpecificationExecutor<Token> {
+    extends JpaRepository<Token, UUID>, JpaSpecificationExecutor<Token> {
 
-    Optional<Token> findByTokenHash(@Param("tokenHash") String tokenHash);
+  Optional<Token> findByTokenHash(@Param("tokenHash") String tokenHash);
 
-    @Modifying
-    @Transactional
-    @Query(
-            "UPDATE Token t SET t.consumed = true "
-                    + "WHERE t.userExtensionId = :userExtensionId "
-                    + "AND t.tokenType = :tokenType "
-                    + "AND t.consumed = false")
-    int invalidateTokensByUserAndType(
-            @Param("userExtensionId") UUID userExtensionId, @Param("tokenType") TokenType tokenType);
-
-    boolean existsByTokenHash(@Param("tokenHash") String tokenHash);
+  @Modifying
+  @Transactional
+  @Query(
+      "UPDATE Token t SET t.consumed = true "
+          + "WHERE t.userExtensionId = :userExtensionId "
+          + "AND t.tokenType = :tokenType "
+          + "AND t.consumed = false")
+  int invalidateTokensByUserAndType(
+      @Param("userExtensionId") UUID userExtensionId, @Param("tokenType") TokenType tokenType);
 }

@@ -15,28 +15,28 @@ import java.util.List;
 
 public final class ErrorResponseBuilder {
 
-    private ErrorResponseBuilder() {
-        // prevent instantiation
-    }
+  private ErrorResponseBuilder() {
+    // prevent instantiation
+  }
 
-    public static ErrorResponse buildErrorResponse(
-            String detail, String requestPath, ResponseCode responseCode) {
-        String errorReference = ReferenceGenerator.generateErrorReference();
-        MDC.put(MDCKeys.ERROR_REFERENCE, errorReference);
-        return ErrorResponse.from(detail, errorReference, requestPath, responseCode);
-    }
+  public static ErrorResponse buildErrorResponse(
+      String detail, String requestPath, ResponseCode responseCode) {
+    String errorReference = ReferenceGenerator.generateErrorReference();
+    MDC.put(MDCKeys.ERROR_REFERENCE, errorReference);
+    return ErrorResponse.from(detail, errorReference, requestPath, responseCode);
+  }
 
-    public static ErrorResponse buildErrorResponseWithErrors(
-            String detail, List<ErrorDetail> errors, String requestPath, ResponseCode responseCode) {
-        String errorReference = ReferenceGenerator.generateErrorReference();
-        MDC.put(MDCKeys.ERROR_REFERENCE, errorReference);
-        return ErrorResponse.withErrors(detail, errorReference, errors, requestPath, responseCode);
-    }
+  public static ErrorResponse buildErrorResponseWithErrors(
+      String detail, List<ErrorDetail> errors, String requestPath, ResponseCode responseCode) {
+    String errorReference = ReferenceGenerator.generateErrorReference();
+    MDC.put(MDCKeys.ERROR_REFERENCE, errorReference);
+    return ErrorResponse.withErrors(detail, errorReference, errors, requestPath, responseCode);
+  }
 
-    public static ResponseEntity<ErrorResponse> buildResponse(
-            ErrorResponse errorResponse, HttpStatus status) {
-        return ResponseEntity.status(status)
-                .header(HttpHeaders.CONTENT_TYPE, ApplicationConstants.PROBLEM_JSON_MEDIA_TYPE)
-                .body(errorResponse);
-    }
+  public static ResponseEntity<ErrorResponse> buildResponse(
+      ErrorResponse errorResponse, HttpStatus status) {
+    return ResponseEntity.status(status)
+        .header(HttpHeaders.CONTENT_TYPE, ApplicationConstants.PROBLEM_JSON_MEDIA_TYPE)
+        .body(errorResponse);
+  }
 }

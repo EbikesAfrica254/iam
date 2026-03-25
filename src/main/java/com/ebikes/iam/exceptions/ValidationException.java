@@ -9,16 +9,15 @@ import java.io.Serializable;
 @Getter
 public class ValidationException extends BaseException {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
-    private final Serializable rejectedValue;
-    private final String field;
+  private final Serializable rejectedValue;
+  private final String field;
 
-    public ValidationException(
-            ResponseCode code, String developerMessage, String field, Serializable rejectedValue) {
-        super(code, developerMessage);
-        this.field = field;
-        this.rejectedValue = rejectedValue;
-    }
+  public ValidationException(
+      ResponseCode code, String developerMessage, String field, Serializable rejectedValue) {
+    super(code, developerMessage);
+    this.field = field;
+    this.rejectedValue = rejectedValue;
+  }
 }

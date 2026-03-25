@@ -10,15 +10,14 @@ import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ContactResponse(
-        UUID id,
-        String branchId,
-        OffsetDateTime createdAt,
-        OffsetDateTime expiresAt,
-        String organizationId,
-        String phoneNumber,
-        String sourceReference,
-        ContactSourceType sourceType,
-        ContactStatus status,
-        UUID userExtensionId)
-        implements Serializable {
-}
+    UUID id,
+    String branchId,
+    OffsetDateTime createdAt,
+    OffsetDateTime expiresAt,
+    String organizationId,
+    String phoneNumber,
+    String sourceReference,
+    ContactSourceType sourceType,
+    ContactStatus status,
+    UUID userExtensionId)
+    implements Serializable {}

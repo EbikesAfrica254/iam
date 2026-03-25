@@ -12,10 +12,10 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 public class EventConsumerConfiguration {
 
-    private final IncomingEventListener incomingEventListener;
+  private final IncomingEventListener incomingEventListener;
 
-    @Bean
-    public Consumer<Message<?>> incomingEventConsumer() {
-        return incomingEventListener::route;
-    }
+  @Bean
+  public Consumer<Message<?>> incomingEventConsumer() {
+    return incomingEventListener::route;
+  }
 }

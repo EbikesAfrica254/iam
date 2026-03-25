@@ -9,15 +9,15 @@ import java.io.Serializable;
 import java.util.Set;
 
 public record CreateMembershipRequest(
-        String branchId,
-        String branchName,
-        @NotNull Boolean isPrimary,
-        @NotBlank String organizationId,
-        @NotBlank String organizationName,
-        @NotEmpty Set<UserRole> roles)
-        implements Serializable {
+    String branchId,
+    String branchName,
+    @NotNull Boolean isPrimary,
+    @NotBlank String organizationId,
+    @NotBlank String organizationName,
+    @NotEmpty Set<UserRole> roles)
+    implements Serializable {
 
-    public CreateMembershipRequest {
-        roles = roles != null ? Set.copyOf(roles) : Set.of();
-    }
+  public CreateMembershipRequest {
+    roles = roles != null ? Set.copyOf(roles) : Set.of();
+  }
 }

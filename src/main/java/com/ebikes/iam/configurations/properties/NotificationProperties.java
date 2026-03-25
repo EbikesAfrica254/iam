@@ -11,5 +11,5 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class NotificationProperties {
 
-    private boolean enabled = true;
+  private boolean enabled = true;
 }

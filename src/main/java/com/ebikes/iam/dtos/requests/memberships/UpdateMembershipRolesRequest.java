@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 public record UpdateMembershipRolesRequest(@NotEmpty Set<UserRole> roles) implements Serializable {
-    public UpdateMembershipRolesRequest {
-        roles = roles != null ? Set.copyOf(roles) : Set.of();
-    }
+  public UpdateMembershipRolesRequest {
+    roles = roles != null ? Set.copyOf(roles) : Set.of();
+  }
 }

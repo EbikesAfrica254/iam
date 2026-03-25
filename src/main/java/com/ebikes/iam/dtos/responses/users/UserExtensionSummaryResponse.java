@@ -7,14 +7,13 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record UserExtensionSummaryResponse(
-        OffsetDateTime createdAt,
-        String email,
-        String firstName,
-        UUID id,
-        String lastName,
-        String phoneNumber,
-        UserStatus status,
-        OffsetDateTime updatedAt,
-        String username)
-        implements Serializable {
-}
+    OffsetDateTime createdAt,
+    String email,
+    String firstName,
+    UUID id,
+    String lastName,
+    String phoneNumber,
+    UserStatus status,
+    OffsetDateTime updatedAt,
+    String username)
+    implements Serializable {}

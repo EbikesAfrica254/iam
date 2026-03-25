@@ -26,99 +26,95 @@ import java.util.Optional;
 @Slf4j
 public class KeycloakGroupService {
 
-    private static final String KEYCLOAK_ENDPOINT = "keycloak://groups";
+  private static final String KEYCLOAK_ENDPOINT = "keycloak://groups";
 
-    private final Keycloak keycloakAdminClient;
-    private final KeycloakProperties keycloakProperties;
+  private final Keycloak keycloakAdminClient;
+  private final KeycloakProperties keycloakProperties;
 
-    public void addUserToGroup(String groupPath, String userId) {
-        String groupId = getGroupIdOrThrow(groupPath);
-        getUserResource(userId).joinGroup(groupId);
-        log.info("User added to group - groupId={} groupPath={} userId={}", groupId, groupPath, userId);
+  public void addUserToGroup(String groupPath, String userId) {
+    String groupId = getGroupIdOrThrow(groupPath);
+    getUserResource(userId).joinGroup(groupId);
+    log.info("User added to group - groupId={} groupPath={} userId={}", groupId, groupPath, userId);
+  }
+
+  public String create(String organizationId, String organizationName) {
+    String groupPath = GroupPathUtilities.generate(organizationId);
+    Optional<GroupRepresentation> existing = findGroupByPath(groupPath);
+    if (existing.isPresent()) {
+      return existing.get().getId();
     }
 
-    public String create(String organizationId, String organizationName) {
-        String groupPath = GroupPathUtilities.generate(organizationId);
-        Optional<GroupRepresentation> existing = findGroupByPath(groupPath);
-        if (existing.isPresent()) {
-            return existing.get().getId();
+    String groupName = groupPath.substring(1);
+    GroupRepresentation group = new GroupRepresentation();
+    group.setName(groupName);
+
+    Map<String, List<String>> attributes = new HashMap<>();
+    attributes.put("display_name", List.of(organizationName));
+    attributes.put("organization_type", List.of("customer"));
+    group.setAttributes(attributes);
+
+    try (Response response = getGroupsResource().add(group)) {
+      if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
+        throw new ExternalServiceException(
+            KEYCLOAK_ENDPOINT,
+            response.getStatusInfo().getReasonPhrase(),
+            ResponseCode.fromHttpStatus(response.getStatus()));
+      }
+
+      String groupId = KeycloakResponseUtilities.extractIdFromLocation(response);
+      log.info("Created group - groupId={} groupPath={}", groupId, groupPath);
+      return groupId;
+    }
+  }
+
+  public String getGroupIdOrThrow(String groupPath) {
+    return findGroupByPath(groupPath)
+        .map(GroupRepresentation::getId)
+        .orElseThrow(() -> notFoundGroup(groupPath));
+  }
+
+  public void removeUserFromGroup(String groupPath, String userId) {
+    String groupId = getGroupIdOrThrow(groupPath);
+    getUserResource(userId).leaveGroup(groupId);
+    log.info(
+        "User removed from group - groupId={} groupPath={} userId={}", groupId, groupPath, userId);
+  }
+
+  private Optional<GroupRepresentation> findGroupByPath(String groupPath) {
+    return searchInGroupHierarchy(getGroupsResource().groups(), groupPath);
+  }
+
+  private GroupsResource getGroupsResource() {
+    return realmResource().groups();
+  }
+
+  private UserResource getUserResource(String userId) {
+    return realmResource().users().get(userId);
+  }
+
+  private RealmResource realmResource() {
+    return keycloakAdminClient.realm(keycloakProperties.getRealm());
+  }
+
+  private ResourceNotFoundException notFoundGroup(String groupPath) {
+    return new ResourceNotFoundException(
+        ResponseCode.RESOURCE_NOT_FOUND, "Group not found: " + groupPath);
+  }
+
+  private Optional<GroupRepresentation> searchInGroupHierarchy(
+      List<GroupRepresentation> groups, String targetPath) {
+    for (GroupRepresentation group : groups) {
+      if (targetPath.equals(group.getPath())) {
+        return Optional.of(group);
+      }
+      if (group.getSubGroups() != null && !group.getSubGroups().isEmpty()) {
+        Optional<GroupRepresentation> found =
+            searchInGroupHierarchy(group.getSubGroups(), targetPath);
+        if (found.isPresent()) {
+          return found;
         }
-
-        String groupName = groupPath.substring(1);
-        GroupRepresentation group = new GroupRepresentation();
-        group.setName(groupName);
-
-        Map<String, List<String>> attributes = new HashMap<>();
-        attributes.put("display_name", List.of(organizationName));
-        attributes.put("organization_type", List.of("customer"));
-        group.setAttributes(attributes);
-
-        try (Response response = getGroupsResource().add(group)) {
-            if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
-                throw new ExternalServiceException(
-                        KEYCLOAK_ENDPOINT,
-                        response.getStatusInfo().getReasonPhrase(),
-                        ResponseCode.fromHttpStatus(response.getStatus()));
-            }
-
-            String groupId = KeycloakResponseUtilities.extractIdFromLocation(response);
-            log.info("Created group - groupId={} groupPath={}", groupId, groupPath);
-            return groupId;
-        }
+      }
     }
-
-    public String getGroupIdOrThrow(String groupPath) {
-        return findGroupByPath(groupPath)
-                .map(GroupRepresentation::getId)
-                .orElseThrow(() -> notFoundGroup(groupPath));
-    }
-
-    public List<String> getUserGroups(String userId) {
-        return getUserResource(userId).groups().stream().map(GroupRepresentation::getPath).toList();
-    }
-
-    public void removeUserFromGroup(String groupPath, String userId) {
-        String groupId = getGroupIdOrThrow(groupPath);
-        getUserResource(userId).leaveGroup(groupId);
-        log.info(
-                "User removed from group - groupId={} groupPath={} userId={}", groupId, groupPath, userId);
-    }
-
-    private Optional<GroupRepresentation> findGroupByPath(String groupPath) {
-        return searchInGroupHierarchy(getGroupsResource().groups(), groupPath);
-    }
-
-    private GroupsResource getGroupsResource() {
-        return realmResource().groups();
-    }
-
-    private UserResource getUserResource(String userId) {
-        return realmResource().users().get(userId);
-    }
-
-    private RealmResource realmResource() {
-        return keycloakAdminClient.realm(keycloakProperties.getRealm());
-    }
-
-    private ResourceNotFoundException notFoundGroup(String groupPath) {
-        return new ResourceNotFoundException(
-                ResponseCode.RESOURCE_NOT_FOUND, "Group not found: " + groupPath);
-    }
-
-    private Optional<GroupRepresentation> searchInGroupHierarchy(
-            List<GroupRepresentation> groups, String targetPath) {
-        for (GroupRepresentation group : groups) {
-            if (targetPath.equals(group.getPath())) {
-                return Optional.of(group);
-            }
-            if (group.getSubGroups() != null && !group.getSubGroups().isEmpty()) {
-                Optional<GroupRepresentation> found =
-                        searchInGroupHierarchy(group.getSubGroups(), targetPath);
-                if (found.isPresent()) {
-                    return found;
-                }
-            }
-        }
-        return Optional.empty();
-    }
+    return Optional.empty();
+  }
 }

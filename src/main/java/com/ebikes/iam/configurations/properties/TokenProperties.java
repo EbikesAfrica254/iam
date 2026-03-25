@@ -9,18 +9,18 @@ import org.springframework.stereotype.Component;
 @Data
 public class TokenProperties {
 
-    private TokenConfiguration accountActivation;
-    private TokenConfiguration emailOtp;
-    private TokenConfiguration emailVerification;
-    private TokenConfiguration passwordReset;
-    private TokenConfiguration phoneNumberVerification;
-    private TokenConfiguration smsOtp;
-    private TokenConfiguration twoFactorAuth;
+  private TokenConfiguration accountActivation;
+  private TokenConfiguration emailOtp;
+  private TokenConfiguration emailVerification;
+  private TokenConfiguration passwordReset;
+  private TokenConfiguration phoneNumberVerification;
+  private TokenConfiguration smsOtp;
+  private TokenConfiguration twoFactorAuth;
 
-    @Data
-    public static class TokenConfiguration {
-        private int length;
-        private Integer validityMinutes;
-        private Integer validityHours;
-    }
+  @Data
+  public static class TokenConfiguration {
+    private int length;
+    private Integer validityMinutes;
+    private Integer validityHours;
+  }
 }

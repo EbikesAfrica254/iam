@@ -23,24 +23,24 @@ import java.util.UUID;
 @RestController
 public class OutboxController {
 
-    private final OutboxService outboxService;
+  private final OutboxService outboxService;
 
-    @GetMapping
-    public ResponseEntity<PaginatedResponse<OutboxResponse>> search(
-            @Valid @ModelAttribute OutboxFilter filter) {
-        return ResponseEntity.ok(outboxService.search(filter));
-    }
+  @GetMapping
+  public ResponseEntity<PaginatedResponse<OutboxResponse>> search(
+      @Valid @ModelAttribute OutboxFilter filter) {
+    return ResponseEntity.ok(outboxService.search(filter));
+  }
 
-    @PatchMapping("/{id}/retry")
-    public ResponseEntity<SuccessResponse<Void>> retry(@PathVariable UUID id) {
-        outboxService.retry(id);
-        return ResponseEntity.ok(SuccessResponse.of(null, "Event reset to pending for retry"));
-    }
+  @PatchMapping("/{id}/retry")
+  public ResponseEntity<SuccessResponse<Void>> retry(@PathVariable UUID id) {
+    outboxService.retry(id);
+    return ResponseEntity.ok(SuccessResponse.of(null, "Event reset to pending for retry"));
+  }
 
-    @PostMapping("/failed/retry")
-    public ResponseEntity<SuccessResponse<Integer>> retryAll() {
-        int count = outboxService.retryAllFailed();
-        return ResponseEntity.ok(
-                SuccessResponse.of(count, count + " failed event(s) reset to pending"));
-    }
+  @PostMapping("/failed/retry")
+  public ResponseEntity<SuccessResponse<Integer>> retryAll() {
+    int count = outboxService.retryAllFailed();
+    return ResponseEntity.ok(
+        SuccessResponse.of(count, count + " failed event(s) reset to pending"));
+  }
 }

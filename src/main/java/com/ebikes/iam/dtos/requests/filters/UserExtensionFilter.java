@@ -11,18 +11,18 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class UserExtensionFilter extends BaseFilter {
-    private String branchId;
-    private String countryCode;
-    private LocalDate createdDateFrom;
-    private LocalDate createdDateTo;
-    private String email;
-    private Boolean emailVerified;
-    private String firstName;
-    private String keycloakUserId;
-    private String lastName;
-    private String organizationId;
-    private String phoneNumber;
-    private Boolean phoneNumberVerified;
-    private UserStatus status;
-    private String username;
+  private String branchId;
+  private String countryCode;
+  private LocalDate createdDateFrom;
+  private LocalDate createdDateTo;
+  private String email;
+  private Boolean emailVerified;
+  private String firstName;
+  private String keycloakUserId;
+  private String lastName;
+  private String organizationId;
+  private String phoneNumber;
+  private Boolean phoneNumberVerified;
+  private UserStatus status;
+  private String username;
 }

@@ -9,12 +9,11 @@ import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record OutboxResponse(
-        UUID id,
-        OffsetDateTime createdAt,
-        String eventType,
-        Integer retryCount,
-        String routingKey,
-        OutboxStatus status,
-        OffsetDateTime updatedAt)
-        implements Serializable {
-}
+    UUID id,
+    OffsetDateTime createdAt,
+    String eventType,
+    Integer retryCount,
+    String routingKey,
+    OutboxStatus status,
+    OffsetDateTime updatedAt)
+    implements Serializable {}

@@ -10,19 +10,19 @@ import org.springframework.validation.annotation.Validated;
 @Data
 @Validated
 public class WebClientProperties {
-    private String baseUrl;
-    private String support;
-    private VerificationConfiguration verification;
+  private String baseUrl;
+  private String support;
+  private VerificationConfiguration verification;
 
-    @Data
-    public static class VerificationConfiguration {
-        private ChannelConfiguration email;
-        private ChannelConfiguration passwordReset;
-        private ChannelConfiguration phone;
-    }
+  @Data
+  public static class VerificationConfiguration {
+    private ChannelConfiguration email;
+    private ChannelConfiguration passwordReset;
+    private ChannelConfiguration phone;
+  }
 
-    @Data
-    public static class ChannelConfiguration {
-        private String path;
-    }
+  @Data
+  public static class ChannelConfiguration {
+    private String path;
+  }
 }

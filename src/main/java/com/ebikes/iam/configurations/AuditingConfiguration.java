@@ -14,21 +14,21 @@ import java.util.Optional;
 @EnableJpaAuditing(dateTimeProviderRef = "offsetDateTimeProvider")
 public class AuditingConfiguration {
 
-    @Bean
-    public AuditorAware<String> auditorAware() {
-        return AuditingConfiguration::tryGetUserId;
-    }
+  @Bean
+  public AuditorAware<String> auditorAware() {
+    return AuditingConfiguration::tryGetUserId;
+  }
 
-    @Bean
-    public DateTimeProvider offsetDateTimeProvider() {
-        return () -> Optional.of(OffsetDateTime.now());
-    }
+  @Bean
+  public DateTimeProvider offsetDateTimeProvider() {
+    return () -> Optional.of(OffsetDateTime.now());
+  }
 
-    private static Optional<String> tryGetUserId() {
-        try {
-            return Optional.of(ExecutionContext.getUserId());
-        } catch (IllegalStateException e) {
-            return Optional.empty();
-        }
+  private static Optional<String> tryGetUserId() {
+    try {
+      return Optional.of(ExecutionContext.getUserId());
+    } catch (IllegalStateException e) {
+      return Optional.empty();
     }
+  }
 }

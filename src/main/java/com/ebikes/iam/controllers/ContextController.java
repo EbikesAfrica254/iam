@@ -24,49 +24,49 @@ import java.util.List;
 @RestController
 public class ContextController {
 
-    private final ContextService contextService;
-    private final MembershipMapper membershipMapper;
+  private final ContextService contextService;
+  private final MembershipMapper membershipMapper;
 
-    @GetMapping("/available")
-    public ResponseEntity<SuccessResponse<List<MembershipResponse>>> getAvailableContexts() {
-        String keycloakUserId = ExecutionContext.getUserId();
+  @GetMapping("/available")
+  public ResponseEntity<SuccessResponse<List<MembershipResponse>>> getAvailableContexts() {
+    String keycloakUserId = ExecutionContext.getUserId();
 
-        List<MembershipResponse> response =
-                contextService.getSwitchableMemberships(keycloakUserId).stream()
-                        .map(membershipMapper::toResponse)
-                        .toList();
+    List<MembershipResponse> response =
+        contextService.getSwitchableMemberships(keycloakUserId).stream()
+            .map(membershipMapper::toResponse)
+            .toList();
 
-        return ResponseEntity.ok(SuccessResponse.of(response));
-    }
+    return ResponseEntity.ok(SuccessResponse.of(response));
+  }
 
-    @GetMapping("/current")
-    public ResponseEntity<SuccessResponse<ContextResponse>> getCurrentContext() {
-        String keycloakUserId = ExecutionContext.getUserId();
-        String activeOrganizationId = ExecutionContext.getActiveOrganization();
-        String activeBranchId = ExecutionContext.getActiveBranch();
+  @GetMapping("/current")
+  public ResponseEntity<SuccessResponse<ContextResponse>> getCurrentContext() {
+    String keycloakUserId = ExecutionContext.getUserId();
+    String activeOrganizationId = ExecutionContext.getActiveOrganization();
+    String activeBranchId = ExecutionContext.getActiveBranch();
 
-        Membership membership =
-                contextService.getActiveMembership(activeBranchId, keycloakUserId, activeOrganizationId);
+    Membership membership =
+        contextService.getActiveMembership(activeBranchId, keycloakUserId, activeOrganizationId);
 
-        ContextResponse response =
-                new ContextResponse(activeOrganizationId, activeBranchId, membership.getRoles());
+    ContextResponse response =
+        new ContextResponse(activeOrganizationId, activeBranchId, membership.getRoles());
 
-        return ResponseEntity.ok(SuccessResponse.of(response));
-    }
+    return ResponseEntity.ok(SuccessResponse.of(response));
+  }
 
-    @PostMapping("/switch")
-    public ResponseEntity<SuccessResponse<Void>> switchContext(
-            @Valid @RequestBody SwitchContextRequest request) {
+  @PostMapping("/switch")
+  public ResponseEntity<SuccessResponse<Void>> switchContext(
+      @Valid @RequestBody SwitchContextRequest request) {
 
-        String keycloakUserId = ExecutionContext.getUserId();
+    String keycloakUserId = ExecutionContext.getUserId();
 
-        contextService.switchActiveMembership(
-                request.branchId(), keycloakUserId, request.organizationId());
+    contextService.switchActiveMembership(
+        request.branchId(), keycloakUserId, request.organizationId());
 
-        return ResponseEntity.ok(
-                SuccessResponse.of(
-                        null,
-                        "Tenant context switched successfully. Please refresh your authentication token to"
-                                + " receive updated claims."));
-    }
+    return ResponseEntity.ok(
+        SuccessResponse.of(
+            null,
+            "Tenant context switched successfully. Please refresh your authentication token to"
+                + " receive updated claims."));
+  }
 }

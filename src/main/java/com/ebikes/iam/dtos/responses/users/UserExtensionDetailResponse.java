@@ -9,21 +9,20 @@ import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record UserExtensionDetailResponse(
-        String branchId,
-        String countryCode,
-        OffsetDateTime createdAt,
-        OffsetDateTime deletedAt,
-        String email,
-        boolean emailVerified,
-        String firstName,
-        UUID id,
-        String keycloakUserId,
-        String lastName,
-        String organizationId,
-        String phoneNumber,
-        boolean phoneNumberVerified,
-        UserStatus status,
-        OffsetDateTime updatedAt,
-        String username)
-        implements Serializable {
-}
+    String branchId,
+    String countryCode,
+    OffsetDateTime createdAt,
+    OffsetDateTime deletedAt,
+    String email,
+    boolean emailVerified,
+    String firstName,
+    UUID id,
+    String keycloakUserId,
+    String lastName,
+    String organizationId,
+    String phoneNumber,
+    boolean phoneNumberVerified,
+    UserStatus status,
+    OffsetDateTime updatedAt,
+    String username)
+    implements Serializable {}

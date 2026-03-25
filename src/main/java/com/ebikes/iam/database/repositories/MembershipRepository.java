@@ -11,22 +11,22 @@ import java.util.UUID;
 @Repository
 public interface MembershipRepository extends JpaRepository<Membership, UUID> {
 
-    boolean existsByBranchIdAndKeycloakUserIdAndOrganizationId(
-            String branchId, String keycloakUserId, String organizationId);
+  boolean existsByBranchIdAndKeycloakUserIdAndOrganizationId(
+      String branchId, String keycloakUserId, String organizationId);
 
-    boolean existsByKeycloakUserIdAndOrganizationIdAndBranchIdIsNull(
-            String keycloakUserId, String organizationId);
+  boolean existsByKeycloakUserIdAndOrganizationIdAndBranchIdIsNull(
+      String keycloakUserId, String organizationId);
 
-    List<Membership> findAllByKeycloakUserIdAndOrganizationId(
-            String keycloakUserId, String organizationId);
+  List<Membership> findAllByKeycloakUserIdAndOrganizationId(
+      String keycloakUserId, String organizationId);
 
-    List<Membership> findByKeycloakUserId(String keycloakUserId);
+  List<Membership> findByKeycloakUserId(String keycloakUserId);
 
-    List<Membership> findByIsPrimaryAndKeycloakUserId(Boolean isPrimary, String keycloakUserId);
+  List<Membership> findByIsPrimaryAndKeycloakUserId(Boolean isPrimary, String keycloakUserId);
 
-    Optional<Membership> findByKeycloakUserIdAndOrganizationIdAndBranchId(
-            String keycloakUserId, String organizationId, String branchId);
+  Optional<Membership> findByKeycloakUserIdAndOrganizationIdAndBranchId(
+      String keycloakUserId, String organizationId, String branchId);
 
-    Optional<Membership> findByKeycloakUserIdAndOrganizationIdAndBranchIdIsNull(
-            String keycloakUserId, String organizationId);
+  Optional<Membership> findByKeycloakUserIdAndOrganizationIdAndBranchIdIsNull(
+      String keycloakUserId, String organizationId);
 }

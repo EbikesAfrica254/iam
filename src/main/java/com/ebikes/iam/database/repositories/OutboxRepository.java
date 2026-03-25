@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Repository
 public interface OutboxRepository
-        extends JpaRepository<Outbox, UUID>, JpaSpecificationExecutor<Outbox> {
+    extends JpaRepository<Outbox, UUID>, JpaSpecificationExecutor<Outbox> {
 
-    List<Outbox> findByStatusOrderByIdAsc(OutboxStatus status);
+  List<Outbox> findByStatusOrderByIdAsc(OutboxStatus status);
 }

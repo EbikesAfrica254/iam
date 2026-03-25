@@ -21,45 +21,45 @@ import java.util.Set;
 @Slf4j
 public class OrganizationEventListener implements IncomingEventHandler {
 
-    private final InboxService inboxService;
-    private final KeycloakGroupService keycloakGroupService;
-    private final MembershipMapper membershipMapper;
-    private final MembershipService membershipService;
-    private final ObjectMapper objectMapper;
+  private final InboxService inboxService;
+  private final KeycloakGroupService keycloakGroupService;
+  private final MembershipMapper membershipMapper;
+  private final MembershipService membershipService;
+  private final ObjectMapper objectMapper;
 
-    @Override
-    public void handle(byte[] payload) {
-        OrganizationApprovedAuditEvent event =
-                objectMapper.readValue(payload, OrganizationApprovedAuditEvent.class);
-        log.info(
-                "Received OrganizationApprovedAuditEvent: serviceReference={}", event.serviceReference());
+  @Override
+  public void handle(byte[] payload) {
+    OrganizationApprovedAuditEvent event =
+        objectMapper.readValue(payload, OrganizationApprovedAuditEvent.class);
+    log.info(
+        "Received OrganizationApprovedAuditEvent: serviceReference={}", event.serviceReference());
 
-        if (EventContext.absent()) {
-            log.warn("No event context found, skipping event processing.");
-            return;
-        }
-
-        if (!inboxService.receive(
-                EventContext.getEventType(), event.serviceReference(), EventContext.getSourceService())) {
-            return;
-        }
-
-        try {
-            keycloakGroupService.create(event.organizationId(), event.metadata().get("displayName"));
-            CreateMembershipRequest request =
-                    membershipMapper.toRequest(event, false, Set.of(UserRole.ORGANIZATION_ADMIN));
-            membershipService.create(event.metadata().get("ownerId"), request);
-            inboxService.markProcessed(event.serviceReference());
-        } catch (Exception e) {
-            log.error(
-                    "Failed to process organization approved event for serviceReference={}",
-                    event.serviceReference(),
-                    e);
-        }
+    if (EventContext.absent()) {
+      log.warn("No event context found, skipping event processing.");
+      return;
     }
 
-    @Override
-    public boolean matches(String routingKey) {
-        return routingKey.equals(RoutingKeys.ORGANIZATIONS_APPROVED);
+    if (!inboxService.receive(
+        EventContext.getEventType(), event.serviceReference(), EventContext.getSourceService())) {
+      return;
     }
+
+    try {
+      keycloakGroupService.create(event.organizationId(), event.metadata().get("displayName"));
+      CreateMembershipRequest request =
+          membershipMapper.toRequest(event, false, Set.of(UserRole.ORGANIZATION_ADMIN));
+      membershipService.create(event.metadata().get("ownerId"), request);
+      inboxService.markProcessed(event.serviceReference());
+    } catch (Exception e) {
+      log.error(
+          "Failed to process organization approved event for serviceReference={}",
+          event.serviceReference(),
+          e);
+    }
+  }
+
+  @Override
+  public boolean matches(String routingKey) {
+    return routingKey.equals(RoutingKeys.ORGANIZATIONS_APPROVED);
+  }
 }

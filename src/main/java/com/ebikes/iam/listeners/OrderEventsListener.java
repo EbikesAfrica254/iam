@@ -15,35 +15,35 @@ import tools.jackson.databind.ObjectMapper;
 @Slf4j
 public class OrderEventsListener implements IncomingEventHandler {
 
-    private final ContactService contactService;
-    private final InboxService inboxService;
-    private final ObjectMapper objectMapper;
+  private final ContactService contactService;
+  private final InboxService inboxService;
+  private final ObjectMapper objectMapper;
 
-    @Override
-    public void handle(byte[] payload) {
-        BatchContactsEvent event = objectMapper.readValue(payload, BatchContactsEvent.class);
-        log.info("Received BatchContactsEvent: documentId={}", event.documentId());
+  @Override
+  public void handle(byte[] payload) {
+    BatchContactsEvent event = objectMapper.readValue(payload, BatchContactsEvent.class);
+    log.info("Received BatchContactsEvent: documentId={}", event.documentId());
 
-        if (EventContext.absent()) {
-            log.warn("No event context found, skipping event processing.");
-            return;
-        }
-
-        if (!inboxService.receive(
-                EventContext.getEventType(), event.serviceReference(), EventContext.getSourceService())) {
-            return;
-        }
-
-        try {
-            contactService.processContacts(event);
-            inboxService.markProcessed(event.serviceReference());
-        } catch (Exception e) {
-            log.error("Failed to process contacts for documentId={}", event.documentId(), e);
-        }
+    if (EventContext.absent()) {
+      log.warn("No event context found, skipping event processing.");
+      return;
     }
 
-    @Override
-    public boolean matches(String routingKey) {
-        return routingKey.equals(RoutingKeys.ORDERS_MANIFEST_CONTACTS);
+    if (!inboxService.receive(
+        EventContext.getEventType(), event.serviceReference(), EventContext.getSourceService())) {
+      return;
     }
+
+    try {
+      contactService.processContacts(event);
+      inboxService.markProcessed(event.serviceReference());
+    } catch (Exception e) {
+      log.error("Failed to process contacts for documentId={}", event.documentId(), e);
+    }
+  }
+
+  @Override
+  public boolean matches(String routingKey) {
+    return routingKey.equals(RoutingKeys.ORDERS_MANIFEST_CONTACTS);
+  }
 }

@@ -40,121 +40,121 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class SecurityConfiguration {
-    private final ObjectMapper objectMapper;
-    private final SecurityProperties securityProperties;
+  private final ObjectMapper objectMapper;
+  private final SecurityProperties securityProperties;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder decoder) {
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder decoder) {
 
-        return http.csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        req ->
-                                req.requestMatchers(securityProperties.getPublicEndpoints().toArray(String[]::new))
-                                        .permitAll()
-                                        .anyRequest()
-                                        .authenticated())
-                .oauth2ResourceServer(
-                        server ->
-                                server
-                                        .jwt(
-                                                jwtConfigurer ->
-                                                        jwtConfigurer
-                                                                .decoder(decoder)
-                                                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                                        .authenticationEntryPoint(
-                                                (request, response, authenticationException) -> {
-                                                    ErrorResponse errorResponse =
-                                                            ErrorResponse.from(
-                                                                    authenticationException.getMessage(),
-                                                                    UUID.randomUUID().toString(),
-                                                                    request.getRequestURI(),
-                                                                    ResponseCode.FORBIDDEN);
+    return http.csrf(AbstractHttpConfigurer::disable)
+        .cors(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(
+            req ->
+                req.requestMatchers(securityProperties.getPublicEndpoints().toArray(String[]::new))
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
+        .oauth2ResourceServer(
+            server ->
+                server
+                    .jwt(
+                        jwtConfigurer ->
+                            jwtConfigurer
+                                .decoder(decoder)
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                    .authenticationEntryPoint(
+                        (request, response, authenticationException) -> {
+                          ErrorResponse errorResponse =
+                              ErrorResponse.from(
+                                  authenticationException.getMessage(),
+                                  UUID.randomUUID().toString(),
+                                  request.getRequestURI(),
+                                  ResponseCode.FORBIDDEN);
 
-                                                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                                                    response.setContentType("application/json");
-                                                    objectMapper.writeValue(response.getOutputStream(), errorResponse);
-                                                }))
-                .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .build();
-    }
+                          response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                          response.setContentType("application/json");
+                          objectMapper.writeValue(response.getOutputStream(), errorResponse);
+                        }))
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .build();
+  }
 
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(new RealmRoleGrantedAuthoritiesConverter());
-        return converter;
-    }
+  @Bean
+  public JwtAuthenticationConverter jwtAuthenticationConverter() {
+    JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+    converter.setJwtGrantedAuthoritiesConverter(new RealmRoleGrantedAuthoritiesConverter());
+    return converter;
+  }
 
-    @Bean
-    public JwtDecoder jwtDecoder(OAuth2ResourceServerProperties properties) {
-        NimbusJwtDecoder jwtDecoder =
-                NimbusJwtDecoder.withJwkSetUri(properties.getJwt().getJwkSetUri()).build();
-        jwtDecoder.setJwtValidator(tokenValidator());
-        return jwtDecoder;
-    }
+  @Bean
+  public JwtDecoder jwtDecoder(OAuth2ResourceServerProperties properties) {
+    NimbusJwtDecoder jwtDecoder =
+        NimbusJwtDecoder.withJwkSetUri(properties.getJwt().getJwkSetUri()).build();
+    jwtDecoder.setJwtValidator(tokenValidator());
+    return jwtDecoder;
+  }
 
-    @Bean
-    public OAuth2TokenValidator<Jwt> tokenValidator() {
-        return jwt -> {
-            if (jwt.getExpiresAt() == null || jwt.getExpiresAt().isBefore(Instant.now())) {
-                log.warn("Token validation: Expired JWT code");
-                return createError(ResponseCode.SECURITY_CODE_EXPIRED, jwt.getIssuer().getPath());
-            }
-            String tokenScopesString = jwt.getClaimAsString("scope");
-            List<String> tokenScopes =
-                    tokenScopesString == null ? null : List.of(tokenScopesString.split(" "));
-            if (tokenScopes == null || tokenScopes.isEmpty()) {
-                return createError(ResponseCode.INVALID_SECURITY_CODE, jwt.getIssuer().getPath());
-            }
+  @Bean
+  public OAuth2TokenValidator<Jwt> tokenValidator() {
+    return jwt -> {
+      if (jwt.getExpiresAt() == null || jwt.getExpiresAt().isBefore(Instant.now())) {
+        log.warn("Token validation: Expired JWT code");
+        return createError(ResponseCode.SECURITY_CODE_EXPIRED, jwt.getIssuer().getPath());
+      }
+      String tokenScopesString = jwt.getClaimAsString("scope");
+      List<String> tokenScopes =
+          tokenScopesString == null ? null : List.of(tokenScopesString.split(" "));
+      if (tokenScopes == null || tokenScopes.isEmpty()) {
+        return createError(ResponseCode.INVALID_SECURITY_CODE, jwt.getIssuer().getPath());
+      }
 
-            boolean hasRequiredScope =
-                    securityProperties.getScopes().stream().anyMatch(tokenScopes::contains);
-            if (!hasRequiredScope) {
-                return createError(ResponseCode.INSUFFICIENT_SCOPE, jwt.getIssuer().getPath());
-            }
-            return OAuth2TokenValidatorResult.success();
-        };
-    }
+      boolean hasRequiredScope =
+          securityProperties.getScopes().stream().anyMatch(tokenScopes::contains);
+      if (!hasRequiredScope) {
+        return createError(ResponseCode.INSUFFICIENT_SCOPE, jwt.getIssuer().getPath());
+      }
+      return OAuth2TokenValidatorResult.success();
+    };
+  }
 
-    private OAuth2TokenValidatorResult createError(ResponseCode responseCode, String issuer) {
-        BearerTokenError bearerTokenError =
-                new BearerTokenError(
-                        responseCode.getCode(), HttpStatus.UNAUTHORIZED, responseCode.getUserMessage(), issuer);
-        return OAuth2TokenValidatorResult.failure(bearerTokenError);
-    }
+  private OAuth2TokenValidatorResult createError(ResponseCode responseCode, String issuer) {
+    BearerTokenError bearerTokenError =
+        new BearerTokenError(
+            responseCode.getCode(), HttpStatus.UNAUTHORIZED, responseCode.getUserMessage(), issuer);
+    return OAuth2TokenValidatorResult.failure(bearerTokenError);
+  }
 
-    private static class RealmRoleGrantedAuthoritiesConverter
-            implements Converter<Jwt, Collection<GrantedAuthority>> {
+  private static class RealmRoleGrantedAuthoritiesConverter
+      implements Converter<Jwt, Collection<GrantedAuthority>> {
 
-        private static final String REALM_ACCESS_CLAIM = "realm_access";
-        private static final String ROLES_CLAIM = "roles";
+    private static final String REALM_ACCESS_CLAIM = "realm_access";
+    private static final String ROLES_CLAIM = "roles";
 
-        private final JwtGrantedAuthoritiesConverter defaultConverter =
-                new JwtGrantedAuthoritiesConverter();
+    private final JwtGrantedAuthoritiesConverter defaultConverter =
+        new JwtGrantedAuthoritiesConverter();
 
-        @Override
-        public Collection<GrantedAuthority> convert(Jwt jwt) {
-            Set<GrantedAuthority> authorities = new HashSet<>(defaultConverter.convert(jwt));
+    @Override
+    public Collection<GrantedAuthority> convert(Jwt jwt) {
+      Set<GrantedAuthority> authorities = new HashSet<>(defaultConverter.convert(jwt));
 
-            Map<String, Object> realmAccess = jwt.getClaim(REALM_ACCESS_CLAIM);
-            if (realmAccess == null) {
-                return authorities;
-            }
+      Map<String, Object> realmAccess = jwt.getClaim(REALM_ACCESS_CLAIM);
+      if (realmAccess == null) {
+        return authorities;
+      }
 
-            Object roles = realmAccess.get(ROLES_CLAIM);
-            if (!(roles instanceof Collection<?> roleCollection)) {
-                return authorities;
-            }
+      Object roles = realmAccess.get(ROLES_CLAIM);
+      if (!(roles instanceof Collection<?> roleCollection)) {
+        return authorities;
+      }
 
-            for (Object role : roleCollection) {
-                if (role instanceof String roleName && !roleName.isBlank()) {
-                    authorities.add(new SimpleGrantedAuthority(roleName));
-                }
-            }
-
-            return authorities;
+      for (Object role : roleCollection) {
+        if (role instanceof String roleName && !roleName.isBlank()) {
+          authorities.add(new SimpleGrantedAuthority(roleName));
         }
+      }
+
+      return authorities;
     }
+  }
 }

@@ -44,142 +44,125 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ContactService {
 
-    private static final String ENTITY_TYPE = "CONTACT";
+  private static final String ENTITY_TYPE = "CONTACT";
 
-    private final AuditTemplate auditTemplate;
-    private final ContactMapper contactMapper;
-    private final ContactProperties contactProperties;
-    private final ContactRepository contactRepository;
-    private final OutboxService outboxService;
+  private final AuditTemplate auditTemplate;
+  private final ContactMapper contactMapper;
+  private final ContactProperties contactProperties;
+  private final ContactRepository contactRepository;
+  private final OutboxService outboxService;
 
-    @Transactional
-    public void claim(UUID contactId, UserExtension userExtension) {
-        Contact contact =
-                contactRepository
-                        .findById(contactId)
-                        .orElseThrow(
-                                () ->
-                                        new ResourceNotFoundException(
-                                                ResponseCode.RESOURCE_NOT_FOUND, "Contact not found"));
+  @Transactional
+  public void claim(UUID contactId, UserExtension userExtension) {
+    Contact contact =
+        contactRepository
+            .findById(contactId)
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException(
+                        ResponseCode.RESOURCE_NOT_FOUND, "Contact not found"));
 
-        AuditContext context =
-                new AuditContext(
-                        contactId,
-                        ENTITY_TYPE,
-                        EventTypes.IAM.CONTACT_CLAIMED,
-                        AuditMetadataBuilder.forContact(contact),
-                        contact.getOrganizationId(),
-                        RoutingKeys.IAM_CONTACT_CONFIGURATION);
+    AuditContext context =
+        new AuditContext(
+            contactId,
+            ENTITY_TYPE,
+            EventTypes.IAM.CONTACT_CLAIMED,
+            AuditMetadataBuilder.forContact(contact),
+            contact.getOrganizationId(),
+            RoutingKeys.IAM_CONTACT_CONFIGURATION);
 
-        auditTemplate.execute(
-                context,
-                () -> {
-                    contact.claim(userExtension);
-                    contactRepository.save(contact);
-                });
+    auditTemplate.execute(
+        context,
+        () -> {
+          contact.claim(userExtension);
+          contactRepository.save(contact);
+        });
 
-        log.info("Contact claimed - contactId={} userExtensionId={}", contactId, userExtension.getId());
+    log.info("Contact claimed - contactId={} userExtensionId={}", contactId, userExtension.getId());
+  }
+
+  @Transactional
+  public void processContacts(BatchContactsEvent event) {
+    log.info(
+        "Processing manifest contacts - documentId={} count={}",
+        event.documentId(),
+        event.phoneNumbers().size());
+
+    List<String> phoneNumbers = new ArrayList<>(event.phoneNumbers());
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+    OffsetDateTime newExpiresAt = now.plusHours(contactProperties.getExpiryHours());
+    OffsetDateTime staleThreshold = now.plusHours(contactProperties.getStaleThresholdHours());
+
+    List<Contact> existing =
+        contactRepository.findAllByPhoneNumberInAndOrganizationId(
+            phoneNumbers, event.organizationId());
+
+    Map<String, Contact> existingByPhone =
+        existing.stream().collect(Collectors.toMap(Contact::getPhoneNumber, c -> c));
+
+    Map<String, String> responseMap = new HashMap<>();
+    List<UUID> staleIds = new ArrayList<>();
+    List<Contact> toInsert = new ArrayList<>();
+
+    for (String phoneNumber : phoneNumbers) {
+      Contact existingContact = existingByPhone.get(phoneNumber);
+
+      if (existingContact != null) {
+        if (existingContact.getStatus() == ContactStatus.CLAIMED) {
+          responseMap.put(phoneNumber, existingContact.getId().toString());
+        } else if (existingContact.getStatus() == ContactStatus.UNRESOLVED) {
+          if (existingContact.getExpiresAt().isBefore(staleThreshold)) {
+            staleIds.add(existingContact.getId());
+          }
+          responseMap.put(phoneNumber, existingContact.getId().toString());
+        }
+      }
+
+      if (!responseMap.containsKey(phoneNumber)) {
+        toInsert.add(
+            Contact.builder()
+                .branchId(event.branchId())
+                .expiresAt(newExpiresAt)
+                .organizationId(event.organizationId())
+                .phoneNumber(phoneNumber)
+                .sourceReference(event.documentId())
+                .sourceType(event.sourceType())
+                .build());
+      }
     }
 
-    @Transactional
-    public void expireStale() {
-        OffsetDateTime threshold = OffsetDateTime.now(ZoneOffset.UTC);
-        List<Contact> stale =
-                contactRepository.findAllByStatusAndExpiresAtBefore(ContactStatus.UNRESOLVED, threshold);
-
-        if (stale.isEmpty()) {
-            log.debug("No stale contacts to expire");
-            return;
-        }
-
-        stale.forEach(Contact::expire);
-        contactRepository.saveAll(stale);
-
-        log.info("Expired {} stale contacts", stale.size());
+    if (!staleIds.isEmpty()) {
+      int updated = contactRepository.bulkUpdateExpiresAt(staleIds, newExpiresAt);
+      log.debug("Bulk updated expiry for {} stale contacts", updated);
     }
 
-    @Transactional
-    public void processContacts(BatchContactsEvent event) {
-        log.info(
-                "Processing manifest contacts - documentId={} count={}",
-                event.documentId(),
-                event.phoneNumbers().size());
-
-        List<String> phoneNumbers = new ArrayList<>(event.phoneNumbers());
-        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-        OffsetDateTime newExpiresAt = now.plusHours(contactProperties.getExpiryHours());
-        OffsetDateTime staleThreshold = now.plusHours(contactProperties.getStaleThresholdHours());
-
-        List<Contact> existing =
-                contactRepository.findAllByPhoneNumberInAndOrganizationId(
-                        phoneNumbers, event.organizationId());
-
-        Map<String, Contact> existingByPhone =
-                existing.stream().collect(Collectors.toMap(Contact::getPhoneNumber, c -> c));
-
-        Map<String, String> responseMap = new HashMap<>();
-        List<UUID> staleIds = new ArrayList<>();
-        List<Contact> toInsert = new ArrayList<>();
-
-        for (String phoneNumber : phoneNumbers) {
-            Contact existingContact = existingByPhone.get(phoneNumber);
-
-            if (existingContact != null) {
-                if (existingContact.getStatus() == ContactStatus.CLAIMED) {
-                    responseMap.put(phoneNumber, existingContact.getId().toString());
-                } else if (existingContact.getStatus() == ContactStatus.UNRESOLVED) {
-                    if (existingContact.getExpiresAt().isBefore(staleThreshold)) {
-                        staleIds.add(existingContact.getId());
-                    }
-                    responseMap.put(phoneNumber, existingContact.getId().toString());
-                }
-            }
-
-            if (!responseMap.containsKey(phoneNumber)) {
-                toInsert.add(
-                        Contact.builder()
-                                .branchId(event.branchId())
-                                .expiresAt(newExpiresAt)
-                                .organizationId(event.organizationId())
-                                .phoneNumber(phoneNumber)
-                                .sourceReference(event.documentId())
-                                .sourceType(event.sourceType())
-                                .build());
-            }
-        }
-
-        if (!staleIds.isEmpty()) {
-            int updated = contactRepository.bulkUpdateExpiresAt(staleIds, newExpiresAt);
-            log.debug("Bulk updated expiry for {} stale contacts", updated);
-        }
-
-        if (!toInsert.isEmpty()) {
-            List<Contact> saved = contactRepository.saveAll(toInsert);
-            saved.forEach(c -> responseMap.put(c.getPhoneNumber(), c.getId().toString()));
-            log.debug("Inserted {} new contacts", saved.size());
-        }
-
-        log.info(
-                "Manifest contacts processed - documentId={} resolved={} staleRefreshed={} inserted={}",
-                event.documentId(),
-                responseMap.size(),
-                staleIds.size(),
-                toInsert.size());
-
-        outboxService.save(
-                EventTypes.IAM.CONTACT_CREATED,
-                new ContactsResolvedEvent(
-                        event.documentId(), responseMap, EventConstants.EventSource.serviceReference()),
-                RoutingKeys.IAM_CONTACT_CONFIGURATION);
+    if (!toInsert.isEmpty()) {
+      List<Contact> saved = contactRepository.saveAll(toInsert);
+      saved.forEach(c -> responseMap.put(c.getPhoneNumber(), c.getId().toString()));
+      log.debug("Inserted {} new contacts", saved.size());
     }
 
-    @Transactional(readOnly = true)
-    public PaginatedResponse<ContactResponse> search(ContactFilter filter) {
-        Specification<Contact> spec = ContactSpecifications.buildSpecification(filter);
-        Pageable pageable =
-                FilterUtilities.buildPageable(filter, ContactSpecifications.ALLOWED_SORT_FIELDS);
-        Page<ContactResponse> page =
-                contactRepository.findAll(spec, pageable).map(contactMapper::toResponse);
-        return PaginatedResponse.from("Contacts retrieved successfully.", page);
-    }
+    log.info(
+        "Manifest contacts processed - documentId={} resolved={} staleRefreshed={} inserted={}",
+        event.documentId(),
+        responseMap.size(),
+        staleIds.size(),
+        toInsert.size());
+
+    outboxService.save(
+        EventTypes.IAM.CONTACT_CREATED,
+        new ContactsResolvedEvent(
+            event.documentId(), responseMap, EventConstants.EventSource.serviceReference()),
+        RoutingKeys.IAM_CONTACT_CONFIGURATION);
+  }
+
+  @Transactional(readOnly = true)
+  public PaginatedResponse<ContactResponse> search(ContactFilter filter) {
+    Specification<Contact> spec = ContactSpecifications.buildSpecification(filter);
+    Pageable pageable =
+        FilterUtilities.buildPageable(filter, ContactSpecifications.ALLOWED_SORT_FIELDS);
+    Page<ContactResponse> page =
+        contactRepository.findAll(spec, pageable).map(contactMapper::toResponse);
+    return PaginatedResponse.from("Contacts retrieved successfully.", page);
+  }
 }

@@ -15,43 +15,43 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Slf4j
 public class UserProvisioningEventListener {
 
-    private final NotificationService notificationService;
+  private final NotificationService notificationService;
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void onUserProvisioned(UserProvisionedApplicationEvent event) {
-        log.info(
-                "Handling post-commit provisioning notifications - userId={} organizationId={}",
-                event.userExtension().getId(),
-                event.organizationId());
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void onUserProvisioned(UserProvisionedApplicationEvent event) {
+    log.info(
+        "Handling post-commit provisioning notifications - userId={} organizationId={}",
+        event.userExtension().getId(),
+        event.organizationId());
 
-        sendAccountVerification(event);
-        sendPhoneVerification(event);
+    sendAccountVerification(event);
+    sendPhoneVerification(event);
+  }
+
+  private void sendAccountVerification(UserProvisionedApplicationEvent event) {
+    try {
+      notificationService.sendAccountVerification(
+          event.organizationId(), event.organizationName(), event.userExtension());
+    } catch (Exception e) {
+      log.error(
+          "Failed to send account verification - userId={} organizationId={}",
+          event.userExtension().getId(),
+          event.organizationId(),
+          e);
     }
+  }
 
-    private void sendAccountVerification(UserProvisionedApplicationEvent event) {
-        try {
-            notificationService.sendAccountVerification(
-                    event.organizationId(), event.organizationName(), event.userExtension());
-        } catch (Exception e) {
-            log.error(
-                    "Failed to send account verification - userId={} organizationId={}",
-                    event.userExtension().getId(),
-                    event.organizationId(),
-                    e);
-        }
+  private void sendPhoneVerification(UserProvisionedApplicationEvent event) {
+    try {
+      notificationService.sendPhoneVerification(
+          event.organizationId(), event.organizationName(), event.userExtension());
+    } catch (Exception e) {
+      log.error(
+          "Failed to send phone verification - userId={} organizationId={}",
+          event.userExtension().getId(),
+          event.organizationId(),
+          e);
     }
-
-    private void sendPhoneVerification(UserProvisionedApplicationEvent event) {
-        try {
-            notificationService.sendPhoneVerification(
-                    event.organizationId(), event.organizationName(), event.userExtension());
-        } catch (Exception e) {
-            log.error(
-                    "Failed to send phone verification - userId={} organizationId={}",
-                    event.userExtension().getId(),
-                    event.organizationId(),
-                    e);
-        }
-    }
+  }
 }

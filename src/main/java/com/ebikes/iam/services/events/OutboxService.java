@@ -27,57 +27,57 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class OutboxService {
-    private final OutboxMapper mapper;
-    private final OutboxRepository repository;
+  private final OutboxMapper mapper;
+  private final OutboxRepository repository;
 
-    @Transactional
-    public void retry(UUID outboxId) {
-        log.info("Retrying failed outbox event: outboxId={}", outboxId);
+  @Transactional
+  public void retry(UUID outboxId) {
+    log.info("Retrying failed outbox event: outboxId={}", outboxId);
 
-        Outbox outbox = requireById(outboxId);
-        outbox.resetForRetry();
-        repository.save(outbox);
+    Outbox outbox = requireById(outboxId);
+    outbox.resetForRetry();
+    repository.save(outbox);
 
-        log.info("Outbox event reset to PENDING: outboxId={}", outboxId);
-    }
+    log.info("Outbox event reset to PENDING: outboxId={}", outboxId);
+  }
 
-    @Transactional
-    public int retryAllFailed() {
-        log.info("Retrying all failed outbox events");
+  @Transactional
+  public int retryAllFailed() {
+    log.info("Retrying all failed outbox events");
 
-        List<Outbox> failedEvents = repository.findByStatusOrderByIdAsc(OutboxStatus.FAILED);
-        failedEvents.forEach(Outbox::resetForRetry);
-        repository.saveAll(failedEvents);
+    List<Outbox> failedEvents = repository.findByStatusOrderByIdAsc(OutboxStatus.FAILED);
+    failedEvents.forEach(Outbox::resetForRetry);
+    repository.saveAll(failedEvents);
 
-        log.info("Reset {} failed outbox events to PENDING", failedEvents.size());
+    log.info("Reset {} failed outbox events to PENDING", failedEvents.size());
 
-        return failedEvents.size();
-    }
+    return failedEvents.size();
+  }
 
-    @Transactional
-    public void save(String eventType, Serializable payload, String routingKey) {
-        Outbox outbox = new Outbox(eventType, payload, routingKey);
+  @Transactional
+  public void save(String eventType, Serializable payload, String routingKey) {
+    Outbox outbox = new Outbox(eventType, payload, routingKey);
 
-        repository.save(outbox);
+    repository.save(outbox);
 
-        log.debug("Outbox record created: eventType={}, outboxId={}", eventType, outbox.getId());
-    }
+    log.debug("Outbox record created: eventType={}, outboxId={}", eventType, outbox.getId());
+  }
 
-    @Transactional(readOnly = true)
-    public PaginatedResponse<OutboxResponse> search(OutboxFilter filter) {
-        Specification<Outbox> spec = OutboxSpecifications.buildSpecification(filter);
-        Pageable pageable =
-                FilterUtilities.buildPageable(filter, OutboxSpecifications.ALLOWED_SORT_FIELDS);
-        Page<OutboxResponse> page = repository.findAll(spec, pageable).map(mapper::toResponse);
-        return PaginatedResponse.from("Outbox events retrieved", page);
-    }
+  @Transactional(readOnly = true)
+  public PaginatedResponse<OutboxResponse> search(OutboxFilter filter) {
+    Specification<Outbox> spec = OutboxSpecifications.buildSpecification(filter);
+    Pageable pageable =
+        FilterUtilities.buildPageable(filter, OutboxSpecifications.ALLOWED_SORT_FIELDS);
+    Page<OutboxResponse> page = repository.findAll(spec, pageable).map(mapper::toResponse);
+    return PaginatedResponse.from("Outbox events retrieved", page);
+  }
 
-    public Outbox requireById(UUID outboxId) {
-        return repository
-                .findById(outboxId)
-                .orElseThrow(
-                        () ->
-                                new ResourceNotFoundException(
-                                        ResponseCode.RESOURCE_NOT_FOUND, "Outbox event not found: " + outboxId));
-    }
+  public Outbox requireById(UUID outboxId) {
+    return repository
+        .findById(outboxId)
+        .orElseThrow(
+            () ->
+                new ResourceNotFoundException(
+                    ResponseCode.RESOURCE_NOT_FOUND, "Outbox event not found: " + outboxId));
+  }
 }

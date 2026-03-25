@@ -22,23 +22,22 @@ import java.util.UUID;
 @SuperBuilder
 public abstract class BaseEntity implements Serializable {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
-    @Column(
-            name = "created_at",
-            nullable = false,
-            updatable = false,
-            columnDefinition = "TIMESTAMPTZ")
-    private OffsetDateTime createdAt;
+  @Column(
+      name = "created_at",
+      nullable = false,
+      updatable = false,
+      columnDefinition = "TIMESTAMPTZ")
+  private OffsetDateTime createdAt;
 
-    @Column(name = "id", nullable = false, updatable = false)
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Id
-    private UUID id;
+  @Column(name = "id", nullable = false, updatable = false)
+  @GeneratedValue(strategy = GenerationType.UUID)
+  @Id
+  private UUID id;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
-    }
+  @PrePersist
+  protected void onCreate() {
+    this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
+  }
 }

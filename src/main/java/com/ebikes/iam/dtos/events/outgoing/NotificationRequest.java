@@ -11,24 +11,24 @@ import java.time.Instant;
 import java.util.Map;
 
 public record NotificationRequest(
-        String branchId,
-        @NotNull NotificationCategory category,
-        @NotNull ChannelType channel,
-        @NotBlank String eventType,
-        @NotBlank String organizationId,
-        @NotBlank String recipient,
-        @NotBlank String serviceReference,
-        String subjectUserId,
-        @Pattern(
-                regexp = "^[A-Z][A-Z0-9_]{2,99}$",
-                message = "Template name must be SCREAMING_SNAKE_CASE")
+    String branchId,
+    @NotNull NotificationCategory category,
+    @NotNull ChannelType channel,
+    @NotBlank String eventType,
+    @NotBlank String organizationId,
+    @NotBlank String recipient,
+    @NotBlank String serviceReference,
+    String subjectUserId,
+    @Pattern(
+            regexp = "^[A-Z][A-Z0-9_]{2,99}$",
+            message = "Template name must be SCREAMING_SNAKE_CASE")
         String templateName,
-        Instant timestamp,
-        Map<String, Serializable> variables)
-        implements Serializable {
+    Instant timestamp,
+    Map<String, Serializable> variables)
+    implements Serializable {
 
-    public NotificationRequest {
-        timestamp = timestamp != null ? timestamp : Instant.now();
-        variables = variables != null ? Map.copyOf(variables) : Map.of();
-    }
+  public NotificationRequest {
+    timestamp = timestamp != null ? timestamp : Instant.now();
+    variables = variables != null ? Map.copyOf(variables) : Map.of();
+  }
 }

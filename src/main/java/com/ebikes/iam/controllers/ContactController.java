@@ -23,19 +23,19 @@ import java.util.UUID;
 @RestController
 public class ContactController {
 
-    private final ContactService contactService;
-    private final UserExtensionService userExtensionService;
+  private final ContactService contactService;
+  private final UserExtensionService userExtensionService;
 
-    @PostMapping("/{id}/claim")
-    public ResponseEntity<SuccessResponse<Void>> claim(@PathVariable UUID id) {
-        contactService.claim(
-                id, userExtensionService.findUserExtensionByKeycloakUserId(ExecutionContext.getUserId()));
-        return ResponseEntity.ok(SuccessResponse.of(null, "Contact claimed successfully"));
-    }
+  @PostMapping("/{id}/claim")
+  public ResponseEntity<SuccessResponse<Void>> claim(@PathVariable UUID id) {
+    contactService.claim(
+        id, userExtensionService.findUserExtensionByKeycloakUserId(ExecutionContext.getUserId()));
+    return ResponseEntity.ok(SuccessResponse.of(null, "Contact claimed successfully"));
+  }
 
-    @GetMapping
-    public ResponseEntity<PaginatedResponse<ContactResponse>> search(
-            @ModelAttribute ContactFilter filter) {
-        return ResponseEntity.ok(contactService.search(filter));
-    }
+  @GetMapping
+  public ResponseEntity<PaginatedResponse<ContactResponse>> search(
+      @ModelAttribute ContactFilter filter) {
+    return ResponseEntity.ok(contactService.search(filter));
+  }
 }

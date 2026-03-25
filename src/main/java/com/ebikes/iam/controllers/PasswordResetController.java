@@ -19,22 +19,22 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class PasswordResetController {
 
-    private final VerificationService verificationService;
+  private final VerificationService verificationService;
 
-    @PostMapping("/complete")
-    public ResponseEntity<SuccessResponse<Void>> completePasswordReset(
-            @Valid @RequestBody CompletePasswordResetRequest request) {
-        verificationService.completePasswordReset(request.newPassword(), request.token());
-        return ResponseEntity.ok(SuccessResponse.of(null, "Password reset successfully"));
-    }
+  @PostMapping("/complete")
+  public ResponseEntity<SuccessResponse<Void>> completePasswordReset(
+      @Valid @RequestBody CompletePasswordResetRequest request) {
+    verificationService.completePasswordReset(request.newPassword(), request.token());
+    return ResponseEntity.ok(SuccessResponse.of(null, "Password reset successfully"));
+  }
 
-    @PostMapping
-    public ResponseEntity<SuccessResponse<Void>> requestPasswordReset(
-            @Valid @RequestBody PasswordResetRequest request) {
-        log.debug("Password reset requested");
-        verificationService.requestPasswordReset(request.email());
-        return ResponseEntity.ok(
-                SuccessResponse.of(
-                        null, "If an account exists with this email, a password reset link has been sent."));
-    }
+  @PostMapping
+  public ResponseEntity<SuccessResponse<Void>> requestPasswordReset(
+      @Valid @RequestBody PasswordResetRequest request) {
+    log.debug("Password reset requested");
+    verificationService.requestPasswordReset(request.email());
+    return ResponseEntity.ok(
+        SuccessResponse.of(
+            null, "If an account exists with this email, a password reset link has been sent."));
+  }
 }

@@ -15,25 +15,25 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class UserConfigurationEventPublisher {
 
-    private final OutboxService outboxService;
+  private final OutboxService outboxService;
 
-    public void publishUserProvisioned(
-            UserExtension userExtension, String organizationId, String branchId) {
-        UserProvisionedEvent event =
-                new UserProvisionedEvent(
-                        userExtension.getKeycloakUserId(),
-                        organizationId,
-                        branchId,
-                        userExtension.getEmail(),
-                        EventTypes.IAM.USER_PROVISIONED,
-                        EventSource.serviceReference(),
-                        null);
+  public void publishUserProvisioned(
+      UserExtension userExtension, String organizationId, String branchId) {
+    UserProvisionedEvent event =
+        new UserProvisionedEvent(
+            userExtension.getKeycloakUserId(),
+            organizationId,
+            branchId,
+            userExtension.getEmail(),
+            EventTypes.IAM.USER_PROVISIONED,
+            EventSource.serviceReference(),
+            null);
 
-        outboxService.save(event.eventType(), event, RoutingKeys.IAM_USER_CONFIGURATION);
+    outboxService.save(event.eventType(), event, RoutingKeys.IAM_USER_CONFIGURATION);
 
-        log.info(
-                "User configuration event published - keycloakUserId={} organizationId={}",
-                userExtension.getKeycloakUserId(),
-                organizationId);
-    }
+    log.info(
+        "User configuration event published - keycloakUserId={} organizationId={}",
+        userExtension.getKeycloakUserId(),
+        organizationId);
+  }
 }

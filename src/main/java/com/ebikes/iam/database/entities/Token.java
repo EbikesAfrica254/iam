@@ -29,48 +29,41 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
 @Table(
-        name = "tokens",
-        schema = "iam",
-        indexes = {
-                @Index(name = "idx_tokens_active_expiry", columnList = "user_extension_id,expires_at"),
-                @Index(name = "idx_tokens_user_type", columnList = "user_extension_id,token_type")
-        })
+    name = "tokens",
+    schema = "iam",
+    indexes = {
+      @Index(name = "idx_tokens_active_expiry", columnList = "user_extension_id,expires_at"),
+      @Index(name = "idx_tokens_user_type", columnList = "user_extension_id,token_type")
+    })
 public class Token extends BaseEntity {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
-    @Builder.Default
-    @Column(name = "consumed", nullable = false)
-    private boolean consumed = false;
+  @Builder.Default
+  @Column(name = "consumed", nullable = false)
+  private boolean consumed = false;
 
-    @Column(name = "expires_at", nullable = false, columnDefinition = "TIMESTAMPTZ")
-    @NotNull
-    private OffsetDateTime expiresAt;
+  @Column(name = "expires_at", nullable = false, columnDefinition = "TIMESTAMPTZ")
+  @NotNull private OffsetDateTime expiresAt;
 
-    @Column(name = "token_hash", nullable = false, unique = true)
-    @NotBlank
-    @Size(min = 64, max = 64)
-    private String tokenHash;
+  @Column(name = "token_hash", nullable = false, unique = true)
+  @NotBlank @Size(min = 64, max = 64) private String tokenHash;
 
-    @Column(name = "token_type", columnDefinition = "iam.token_type", nullable = false)
-    @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @NotNull
-    private TokenType tokenType;
+  @Column(name = "token_type", columnDefinition = "iam.token_type", nullable = false)
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  @NotNull private TokenType tokenType;
 
-    @Column(name = "user_extension_id", nullable = false)
-    @NotNull
-    private UUID userExtensionId;
+  @Column(name = "user_extension_id", nullable = false)
+  @NotNull private UUID userExtensionId;
 
-    @Version
-    private Long version;
+  @Version private Long version;
 
-    public void consume() {
-        this.consumed = true;
-    }
+  public void consume() {
+    this.consumed = true;
+  }
 
-    public boolean isExpired(OffsetDateTime currentTime) {
-        return currentTime.isAfter(expiresAt);
-    }
+  public boolean isExpired(OffsetDateTime currentTime) {
+    return currentTime.isAfter(expiresAt);
+  }
 }

@@ -29,68 +29,68 @@ import java.util.List;
 @RestController
 public class MembershipController {
 
-    private final MembershipMapper membershipMapper;
-    private final MembershipService membershipService;
+  private final MembershipMapper membershipMapper;
+  private final MembershipService membershipService;
 
-    @PostMapping
-    public ResponseEntity<SuccessResponse<MembershipResponse>> create(
-            @PathVariable String keycloakUserId, @Valid @RequestBody CreateMembershipRequest request) {
+  @PostMapping
+  public ResponseEntity<SuccessResponse<MembershipResponse>> create(
+      @PathVariable String keycloakUserId, @Valid @RequestBody CreateMembershipRequest request) {
 
-        Membership membership = membershipService.create(keycloakUserId, request);
+    Membership membership = membershipService.create(keycloakUserId, request);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(
-                        SuccessResponse.of(
-                                membershipMapper.toResponse(membership), "Membership created successfully"));
-    }
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(
+            SuccessResponse.of(
+                membershipMapper.toResponse(membership), "Membership created successfully"));
+  }
 
-    @GetMapping
-    public ResponseEntity<SuccessResponse<List<MembershipResponse>>> list(
-            @PathVariable String keycloakUserId) {
+  @GetMapping
+  public ResponseEntity<SuccessResponse<List<MembershipResponse>>> list(
+      @PathVariable String keycloakUserId) {
 
-        List<MembershipResponse> response =
-                membershipService.findMembershipsByKeycloakUserId(keycloakUserId).stream()
-                        .map(membershipMapper::toResponse)
-                        .toList();
+    List<MembershipResponse> response =
+        membershipService.findMembershipsByKeycloakUserId(keycloakUserId).stream()
+            .map(membershipMapper::toResponse)
+            .toList();
 
-        return ResponseEntity.ok(SuccessResponse.of(response));
-    }
+    return ResponseEntity.ok(SuccessResponse.of(response));
+  }
 
-    @DeleteMapping
-    public ResponseEntity<SuccessResponse<Void>> remove(
-            @PathVariable String keycloakUserId,
-            @RequestParam String organizationId,
-            @RequestParam(required = false) String branchId) {
+  @DeleteMapping
+  public ResponseEntity<SuccessResponse<Void>> remove(
+      @PathVariable String keycloakUserId,
+      @RequestParam String organizationId,
+      @RequestParam(required = false) String branchId) {
 
-        membershipService.removeMembership(branchId, keycloakUserId, organizationId);
-        return ResponseEntity.ok(SuccessResponse.of(null, "Membership removed successfully"));
-    }
+    membershipService.removeMembership(branchId, keycloakUserId, organizationId);
+    return ResponseEntity.ok(SuccessResponse.of(null, "Membership removed successfully"));
+  }
 
-    @DeleteMapping("/organizations/{organizationId}")
-    public ResponseEntity<SuccessResponse<Void>> removeFromOrganization(
-            @PathVariable String keycloakUserId, @PathVariable String organizationId) {
+  @DeleteMapping("/organizations/{organizationId}")
+  public ResponseEntity<SuccessResponse<Void>> removeFromOrganization(
+      @PathVariable String keycloakUserId, @PathVariable String organizationId) {
 
-        membershipService.removeUserFromOrganization(keycloakUserId, organizationId);
-        return ResponseEntity.ok(
-                SuccessResponse.of(null, "User removed from organization successfully"));
-    }
+    membershipService.removeUserFromOrganization(keycloakUserId, organizationId);
+    return ResponseEntity.ok(
+        SuccessResponse.of(null, "User removed from organization successfully"));
+  }
 
-    @PutMapping("/primary")
-    public ResponseEntity<SuccessResponse<Void>> setPrimary(
-            @PathVariable String keycloakUserId, @RequestParam String organizationId) {
+  @PutMapping("/primary")
+  public ResponseEntity<SuccessResponse<Void>> setPrimary(
+      @PathVariable String keycloakUserId, @RequestParam String organizationId) {
 
-        membershipService.setPrimaryMembership(keycloakUserId, organizationId);
-        return ResponseEntity.ok(SuccessResponse.of(null, "Primary membership set successfully"));
-    }
+    membershipService.setPrimaryMembership(keycloakUserId, organizationId);
+    return ResponseEntity.ok(SuccessResponse.of(null, "Primary membership set successfully"));
+  }
 
-    @PatchMapping("/roles")
-    public ResponseEntity<SuccessResponse<Void>> updateRoles(
-            @PathVariable String keycloakUserId,
-            @RequestParam String organizationId,
-            @RequestParam(required = false) String branchId,
-            @Valid @RequestBody UpdateMembershipRolesRequest request) {
+  @PatchMapping("/roles")
+  public ResponseEntity<SuccessResponse<Void>> updateRoles(
+      @PathVariable String keycloakUserId,
+      @RequestParam String organizationId,
+      @RequestParam(required = false) String branchId,
+      @Valid @RequestBody UpdateMembershipRolesRequest request) {
 
-        membershipService.setRoles(branchId, keycloakUserId, organizationId, request.roles());
-        return ResponseEntity.ok(SuccessResponse.of(null, "Membership roles updated successfully"));
-    }
+    membershipService.setRoles(branchId, keycloakUserId, organizationId, request.roles());
+    return ResponseEntity.ok(SuccessResponse.of(null, "Membership roles updated successfully"));
+  }
 }

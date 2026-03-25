@@ -13,20 +13,16 @@ import java.util.UUID;
 
 @Repository
 public interface UserExtensionRepository
-        extends JpaRepository<UserExtension, UUID>, JpaSpecificationExecutor<UserExtension> {
+    extends JpaRepository<UserExtension, UUID>, JpaSpecificationExecutor<UserExtension> {
 
-    boolean existsByEmail(String email);
+  Optional<UserExtension> findByEmail(String email);
 
-    boolean existsByPhoneNumber(String phoneNumber);
+  Optional<UserExtension> findByKeycloakUserId(String keycloakUserId);
 
-    Optional<UserExtension> findByEmail(String email);
+  @EntityGraph(attributePaths = {"memberships"})
+  @Query("SELECT ue FROM UserExtension ue WHERE ue.keycloakUserId = :keycloakUserId")
+  Optional<UserExtension> findByKeycloakUserIdWithMemberships(
+      @Param("keycloakUserId") String keycloakUserId);
 
-    Optional<UserExtension> findByKeycloakUserId(String keycloakUserId);
-
-    @EntityGraph(attributePaths = {"memberships"})
-    @Query("SELECT ue FROM UserExtension ue WHERE ue.keycloakUserId = :keycloakUserId")
-    Optional<UserExtension> findByKeycloakUserIdWithMemberships(
-            @Param("keycloakUserId") String keycloakUserId);
-
-    Optional<UserExtension> findByPhoneNumber(String phoneNumber);
+  Optional<UserExtension> findByPhoneNumber(String phoneNumber);
 }

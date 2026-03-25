@@ -13,20 +13,20 @@ import org.mapstruct.ReportingPolicy;
 import java.util.List;
 
 @Mapper(
-        componentModel = "spring",
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        uses = {MembershipMapper.class})
+    componentModel = "spring",
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    uses = {MembershipMapper.class})
 public interface UserExtensionMapper {
 
-    UserExtensionDetailResponse toDetailResponse(UserExtension userExtension);
+  UserExtensionDetailResponse toDetailResponse(UserExtension userExtension);
 
-    UserExtensionSummaryResponse toSummaryResponse(UserExtension userExtension);
+  UserExtensionSummaryResponse toSummaryResponse(UserExtension userExtension);
 
-    @Mapping(target = "activeMembership", source = "activeMembership")
-    @Mapping(target = "createdAt", source = "userExtension.createdAt")
-    @Mapping(target = "id", source = "userExtension.id")
-    @Mapping(target = "memberships", source = "memberships")
-    UserProfileResponse toProfileResponse(
-            UserExtension userExtension, Membership activeMembership, List<Membership> memberships);
+  @Mapping(target = "activeMembership", source = "activeMembership")
+  @Mapping(target = "createdAt", source = "userExtension.createdAt")
+  @Mapping(target = "id", source = "userExtension.id")
+  @Mapping(target = "memberships", source = "memberships")
+  UserProfileResponse toProfileResponse(
+      UserExtension userExtension, Membership activeMembership, List<Membership> memberships);
 }

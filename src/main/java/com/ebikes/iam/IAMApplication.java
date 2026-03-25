@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @Log4j2
 public class IAMApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(IAMApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(IAMApplication.class, args);
+  }
 }

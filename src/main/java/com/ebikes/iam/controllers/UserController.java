@@ -37,80 +37,80 @@ import java.util.UUID;
 @RestController
 public class UserController {
 
-    private final UserCreationAuthorizationService userCreationAuthorizationService;
-    private final UserExtensionService userExtensionService;
-    private final UserProvisioningService userProvisioningService;
+  private final UserCreationAuthorizationService userCreationAuthorizationService;
+  private final UserExtensionService userExtensionService;
+  private final UserProvisioningService userProvisioningService;
 
-    @PostMapping
-    public ResponseEntity<SuccessResponse<Void>> create(
-            @Valid @RequestBody CreateUserRequest request) {
-        userCreationAuthorizationService.authorize(
-                ExecutionContext.getUserId(),
-                request.branchId(),
-                request.organizationId(),
-                request.roles());
-        userProvisioningService.provisionUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(SuccessResponse.of(null, "User created successfully"));
-    }
+  @PostMapping
+  public ResponseEntity<SuccessResponse<Void>> create(
+      @Valid @RequestBody CreateUserRequest request) {
+    userCreationAuthorizationService.authorize(
+        ExecutionContext.getUserId(),
+        request.branchId(),
+        request.organizationId(),
+        request.roles());
+    userProvisioningService.provisionUser(request);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(SuccessResponse.of(null, "User created successfully"));
+  }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<SuccessResponse<Void>> delete(@PathVariable UUID id) {
-        userExtensionService.delete(id);
-        return ResponseEntity.ok(SuccessResponse.of(null, "User deleted successfully"));
-    }
+  @DeleteMapping("/{id}")
+  public ResponseEntity<SuccessResponse<Void>> delete(@PathVariable UUID id) {
+    userExtensionService.delete(id);
+    return ResponseEntity.ok(SuccessResponse.of(null, "User deleted successfully"));
+  }
 
-    @DeleteMapping("/{id}/deprovision")
-    public ResponseEntity<SuccessResponse<Void>> deprovision(@PathVariable UUID id) {
-        userExtensionService.deprovision(id);
-        return ResponseEntity.ok(SuccessResponse.of(null, "User deprovisioned successfully"));
-    }
+  @DeleteMapping("/{id}/deprovision")
+  public ResponseEntity<SuccessResponse<Void>> deprovision(@PathVariable UUID id) {
+    userExtensionService.deprovision(id);
+    return ResponseEntity.ok(SuccessResponse.of(null, "User deprovisioned successfully"));
+  }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<SuccessResponse<UserExtensionDetailResponse>> findById(
-            @PathVariable UUID id) {
-        UserExtensionDetailResponse user = userExtensionService.findById(id);
-        return ResponseEntity.ok(SuccessResponse.of(user));
-    }
+  @GetMapping("/{id}")
+  public ResponseEntity<SuccessResponse<UserExtensionDetailResponse>> findById(
+      @PathVariable UUID id) {
+    UserExtensionDetailResponse user = userExtensionService.findById(id);
+    return ResponseEntity.ok(SuccessResponse.of(user));
+  }
 
-    @GetMapping("/me")
-    public ResponseEntity<SuccessResponse<UserProfileResponse>> me() {
-        return ResponseEntity.ok(SuccessResponse.of(userExtensionService.me()));
-    }
+  @GetMapping("/me")
+  public ResponseEntity<SuccessResponse<UserProfileResponse>> me() {
+    return ResponseEntity.ok(SuccessResponse.of(userExtensionService.me()));
+  }
 
-    @PostMapping("/{id}/restore")
-    public ResponseEntity<SuccessResponse<Void>> restore(@PathVariable UUID id) {
-        userExtensionService.restore(id);
-        return ResponseEntity.ok(SuccessResponse.of(null, "User restored successfully"));
-    }
+  @PostMapping("/{id}/restore")
+  public ResponseEntity<SuccessResponse<Void>> restore(@PathVariable UUID id) {
+    userExtensionService.restore(id);
+    return ResponseEntity.ok(SuccessResponse.of(null, "User restored successfully"));
+  }
 
-    @GetMapping
-    public ResponseEntity<PaginatedResponse<UserExtensionSummaryResponse>> search(
-            @ModelAttribute UserExtensionFilter filter) {
-        Page<UserExtensionSummaryResponse> page = userExtensionService.search(filter);
-        return ResponseEntity.ok(PaginatedResponse.from("Users retrieved successfully.", page));
-    }
+  @GetMapping
+  public ResponseEntity<PaginatedResponse<UserExtensionSummaryResponse>> search(
+      @ModelAttribute UserExtensionFilter filter) {
+    Page<UserExtensionSummaryResponse> page = userExtensionService.search(filter);
+    return ResponseEntity.ok(PaginatedResponse.from("Users retrieved successfully.", page));
+  }
 
-    @PostMapping("/signup")
-    public ResponseEntity<SuccessResponse<Void>> signup(@Valid @RequestBody SignupRequest request) {
-        userProvisioningService.provisionSignup(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(
-                        SuccessResponse.of(
-                                null, "Registration successful. Please check your email for verification."));
-    }
+  @PostMapping("/signup")
+  public ResponseEntity<SuccessResponse<Void>> signup(@Valid @RequestBody SignupRequest request) {
+    userProvisioningService.provisionSignup(request);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(
+            SuccessResponse.of(
+                null, "Registration successful. Please check your email for verification."));
+  }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<SuccessResponse<UserExtensionDetailResponse>> update(
-            @PathVariable UUID id, @Valid @RequestBody UpdateUserExtensionRequest request) {
-        UserExtensionDetailResponse user = userExtensionService.update(id, request);
-        return ResponseEntity.ok(SuccessResponse.of(user, "User updated successfully"));
-    }
+  @PutMapping("/{id}")
+  public ResponseEntity<SuccessResponse<UserExtensionDetailResponse>> update(
+      @PathVariable UUID id, @Valid @RequestBody UpdateUserExtensionRequest request) {
+    UserExtensionDetailResponse user = userExtensionService.update(id, request);
+    return ResponseEntity.ok(SuccessResponse.of(user, "User updated successfully"));
+  }
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<SuccessResponse<Void>> updateStatus(
-            @PathVariable UUID id, @RequestParam UserStatus status) {
-        userExtensionService.updateStatus(id, status);
-        return ResponseEntity.ok(SuccessResponse.of(null, "User status updated successfully"));
-    }
+  @PutMapping("/{id}/status")
+  public ResponseEntity<SuccessResponse<Void>> updateStatus(
+      @PathVariable UUID id, @RequestParam UserStatus status) {
+    userExtensionService.updateStatus(id, status);
+    return ResponseEntity.ok(SuccessResponse.of(null, "User status updated successfully"));
+  }
 }

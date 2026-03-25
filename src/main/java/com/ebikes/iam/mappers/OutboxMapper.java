@@ -7,5 +7,5 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface OutboxMapper {
 
-    OutboxResponse toResponse(Outbox outbox);
+  OutboxResponse toResponse(Outbox outbox);
 }

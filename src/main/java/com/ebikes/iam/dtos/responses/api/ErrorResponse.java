@@ -9,59 +9,59 @@ import static com.ebikes.iam.constants.ApplicationConstants.DOCUMENTATION_ERRORS
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ErrorResponse(
-        String code,
-        String detail,
-        String errorReference,
-        List<ErrorDetail> errors,
-        String instance,
-        int status,
-        String title,
-        String type) {
+    String code,
+    String detail,
+    String errorReference,
+    List<ErrorDetail> errors,
+    String instance,
+    int status,
+    String title,
+    String type) {
 
-    public static ErrorResponse from(
-            String detail, String errorReference, String instance, ResponseCode responseCode) {
-        return new ErrorResponse(
-                responseCode.getCode(),
-                detail,
-                errorReference,
-                null,
-                instance,
-                responseCode.getHttpStatus().value(),
-                responseCode.getUserMessage(),
-                buildTypeUri(responseCode));
+  public static ErrorResponse from(
+      String detail, String errorReference, String instance, ResponseCode responseCode) {
+    return new ErrorResponse(
+        responseCode.getCode(),
+        detail,
+        errorReference,
+        null,
+        instance,
+        responseCode.getHttpStatus().value(),
+        responseCode.getUserMessage(),
+        buildTypeUri(responseCode));
+  }
+
+  public static ErrorResponse withErrors(
+      String detail,
+      String errorReference,
+      List<ErrorDetail> errors,
+      String instance,
+      ResponseCode responseCode) {
+    return new ErrorResponse(
+        responseCode.getCode(),
+        detail,
+        errorReference,
+        errors,
+        instance,
+        responseCode.getHttpStatus().value(),
+        responseCode.getUserMessage(),
+        buildTypeUri(responseCode));
+  }
+
+  private static String buildTypeUri(ResponseCode responseCode) {
+    String encodedCode = responseCode.getCode().toLowerCase().replace('_', '-');
+    return DOCUMENTATION_ERRORS_BASE + encodedCode;
+  }
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public record ErrorDetail(String field, String message, Object rejectedValue) {
+
+    public static ErrorDetail of(String field, String message) {
+      return new ErrorDetail(field, message, null);
     }
 
-    public static ErrorResponse withErrors(
-            String detail,
-            String errorReference,
-            List<ErrorDetail> errors,
-            String instance,
-            ResponseCode responseCode) {
-        return new ErrorResponse(
-                responseCode.getCode(),
-                detail,
-                errorReference,
-                errors,
-                instance,
-                responseCode.getHttpStatus().value(),
-                responseCode.getUserMessage(),
-                buildTypeUri(responseCode));
+    public static ErrorDetail of(String field, String message, Object rejectedValue) {
+      return new ErrorDetail(field, message, rejectedValue);
     }
-
-    private static String buildTypeUri(ResponseCode responseCode) {
-        String encodedCode = responseCode.getCode().toLowerCase().replace('_', '-');
-        return DOCUMENTATION_ERRORS_BASE + encodedCode;
-    }
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    public record ErrorDetail(String field, String message, Object rejectedValue) {
-
-        public static ErrorDetail of(String field, String message) {
-            return new ErrorDetail(field, message, null);
-        }
-
-        public static ErrorDetail of(String field, String message, Object rejectedValue) {
-            return new ErrorDetail(field, message, rejectedValue);
-        }
-    }
+  }
 }

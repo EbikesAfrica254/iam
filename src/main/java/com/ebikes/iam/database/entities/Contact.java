@@ -32,80 +32,68 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
 @Table(
-        name = "contacts",
-        schema = "iam",
-        indexes = {
-                @Index(name = "idx_contacts_branch_id", columnList = "branch_id"),
-                @Index(name = "idx_contacts_organization_id", columnList = "organization_id"),
-                @Index(name = "idx_contacts_phone_number", columnList = "phone_number"),
-                @Index(name = "idx_contacts_source_ref", columnList = "source_reference"),
-                @Index(name = "idx_contacts_status", columnList = "status")
-        },
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uq_contacts_phone_org",
-                        columnNames = {"phone_number", "organization_id"})
-        })
+    name = "contacts",
+    schema = "iam",
+    indexes = {
+      @Index(name = "idx_contacts_branch_id", columnList = "branch_id"),
+      @Index(name = "idx_contacts_organization_id", columnList = "organization_id"),
+      @Index(name = "idx_contacts_phone_number", columnList = "phone_number"),
+      @Index(name = "idx_contacts_source_ref", columnList = "source_reference"),
+      @Index(name = "idx_contacts_status", columnList = "status")
+    },
+    uniqueConstraints = {
+      @UniqueConstraint(
+          name = "uq_contacts_phone_org",
+          columnNames = {"phone_number", "organization_id"})
+    })
 public class Contact extends BaseEntity {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
-    @Column(name = "branch_id", length = 36)
-    private String branchId;
+  @Column(name = "branch_id", length = 36)
+  private String branchId;
 
-    @Column(name = "expires_at", nullable = false)
-    @NotNull
-    private OffsetDateTime expiresAt;
+  @Column(name = "expires_at", nullable = false)
+  @NotNull private OffsetDateTime expiresAt;
 
-    @Column(name = "organization_id", nullable = false, length = 36)
-    @NotBlank
-    @Size(max = 36)
-    private String organizationId;
+  @Column(name = "organization_id", nullable = false, length = 36)
+  @NotBlank @Size(max = 36) private String organizationId;
 
-    @Column(name = "phone_number", nullable = false, length = 20)
-    @NotBlank
-    @Pattern(regexp = "^\\+[1-9]\\d{1,14}$")
-    @Size(max = 20)
-    private String phoneNumber;
+  @Column(name = "phone_number", nullable = false, length = 20)
+  @NotBlank @Pattern(regexp = "^\\+[1-9]\\d{1,14}$") @Size(max = 20) private String phoneNumber;
 
-    @Column(name = "source_reference", nullable = false, length = 255)
-    @NotBlank
-    @Size(max = 255)
-    private String sourceReference;
+  @Column(name = "source_reference", nullable = false)
+  @NotBlank @Size(max = 255) private String sourceReference;
 
-    @Column(name = "source_type", nullable = false, length = 50)
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    private ContactSourceType sourceType;
+  @Column(name = "source_type", nullable = false, length = 50)
+  @Enumerated(EnumType.STRING)
+  @NotNull private ContactSourceType sourceType;
 
-    @Builder.Default
-    @Column(name = "status", nullable = false, length = 50)
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    private ContactStatus status = ContactStatus.UNRESOLVED;
+  @Builder.Default
+  @Column(name = "status", nullable = false, length = 50)
+  @Enumerated(EnumType.STRING)
+  @NotNull private ContactStatus status = ContactStatus.UNRESOLVED;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_extension_id", referencedColumnName = "id")
-    private UserExtension userExtension;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_extension_id", referencedColumnName = "id")
+  private UserExtension userExtension;
 
-    @Version
-    private Long version;
+  @Version private Long version;
 
-    public void claim(UserExtension userExtension) {
-        if (this.status != ContactStatus.UNRESOLVED) {
-            throw new IllegalStateException(
-                    "Cannot claim a contact that is not UNRESOLVED: current status=" + this.status);
-        }
-        this.userExtension = userExtension;
-        this.status = ContactStatus.CLAIMED;
+  public void claim(UserExtension userExtension) {
+    if (this.status != ContactStatus.UNRESOLVED) {
+      throw new IllegalStateException(
+          "Cannot claim a contact that is not UNRESOLVED: current status=" + this.status);
     }
+    this.userExtension = userExtension;
+    this.status = ContactStatus.CLAIMED;
+  }
 
-    public void expire() {
-        if (this.status != ContactStatus.UNRESOLVED) {
-            throw new IllegalStateException(
-                    "Cannot expire a contact that is not UNRESOLVED: current status=" + this.status);
-        }
-        this.status = ContactStatus.EXPIRED;
+  public void expire() {
+    if (this.status != ContactStatus.UNRESOLVED) {
+      throw new IllegalStateException(
+          "Cannot expire a contact that is not UNRESOLVED: current status=" + this.status);
     }
+    this.status = ContactStatus.EXPIRED;
+  }
 }

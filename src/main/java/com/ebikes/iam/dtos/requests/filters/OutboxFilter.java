@@ -11,19 +11,19 @@ import java.time.LocalDate;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class OutboxFilter extends BaseFilter {
-    private LocalDate createdAtFrom;
+  private LocalDate createdAtFrom;
 
-    private LocalDate createdAtTo;
+  private LocalDate createdAtTo;
 
-    private String eventType;
+  private String eventType;
 
-    private Integer maxRetryCount;
+  private Integer maxRetryCount;
 
-    private Integer minRetryCount;
+  private Integer minRetryCount;
 
-    private OutboxStatus status;
+  private OutboxStatus status;
 
-    private LocalDate updatedAtFrom;
+  private LocalDate updatedAtFrom;
 
-    private LocalDate updatedAtTo;
+  private LocalDate updatedAtTo;
 }
