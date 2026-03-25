@@ -1,13 +1,14 @@
 package com.ebikes.iam.support.security;
 
-import com.ebikes.iam.enums.RoleScope;
-import com.ebikes.iam.enums.UserRole;
-import lombok.experimental.UtilityClass;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.ebikes.iam.enums.RoleScope;
+import com.ebikes.iam.enums.UserRole;
+
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class RBACUtilities {

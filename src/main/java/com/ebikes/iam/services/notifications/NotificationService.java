@@ -1,5 +1,12 @@
 package com.ebikes.iam.services.notifications;
 
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
 import com.ebikes.iam.constants.EventConstants.EventSource;
 import com.ebikes.iam.database.entities.UserExtension;
 import com.ebikes.iam.dtos.events.outgoing.NotificationRequest;
@@ -9,14 +16,9 @@ import com.ebikes.iam.mappers.NotificationMapper;
 import com.ebikes.iam.publishers.NotificationEventPublisher;
 import com.ebikes.iam.services.tokens.TokenService;
 import com.ebikes.iam.services.verification.VerificationLinkBuilder;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.io.Serializable;
-import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Service

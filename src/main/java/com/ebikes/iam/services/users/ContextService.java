@@ -1,5 +1,15 @@
 package com.ebikes.iam.services.users;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import jakarta.validation.constraints.NotBlank;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+
 import com.ebikes.iam.constants.ApplicationConstants;
 import com.ebikes.iam.constants.EventConstants.EventTypes;
 import com.ebikes.iam.constants.EventConstants.RoutingKeys;
@@ -10,16 +20,9 @@ import com.ebikes.iam.services.keycloak.users.KeycloakUserService;
 import com.ebikes.iam.support.audit.AuditContext;
 import com.ebikes.iam.support.audit.AuditMetadataBuilder;
 import com.ebikes.iam.support.audit.AuditTemplate;
-import jakarta.validation.constraints.NotBlank;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Service

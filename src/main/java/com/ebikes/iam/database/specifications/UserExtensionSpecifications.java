@@ -20,7 +20,7 @@ public class UserExtensionSpecifications {
   public static final String FIELD_BRANCH_ID = "branchId";
   public static final String FIELD_COUNTRY_CODE = "countryCode";
   public static final String FIELD_CREATED_AT = "createdAt";
-    public static final String FIELD_EMAIL = "email";
+  public static final String FIELD_EMAIL = "email";
   public static final String FIELD_EMAIL_VERIFIED = "emailVerified";
   public static final String FIELD_FIRST_NAME = "firstName";
   public static final String FIELD_KEYCLOAK_USER_ID = "keycloakUserId";

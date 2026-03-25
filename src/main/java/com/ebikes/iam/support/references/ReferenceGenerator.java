@@ -1,11 +1,12 @@
 package com.ebikes.iam.support.references;
 
-import com.ebikes.iam.constants.ApplicationConstants;
-import org.apache.commons.lang3.RandomStringUtils;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+
+import org.apache.commons.lang3.RandomStringUtils;
+
+import com.ebikes.iam.constants.ApplicationConstants;
 
 public final class ReferenceGenerator {
 

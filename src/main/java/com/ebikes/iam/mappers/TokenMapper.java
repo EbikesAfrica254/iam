@@ -1,13 +1,14 @@
 package com.ebikes.iam.mappers;
 
-import com.ebikes.iam.database.entities.Token;
-import com.ebikes.iam.enums.TokenType;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-import java.time.OffsetDateTime;
-import java.util.UUID;
+import com.ebikes.iam.database.entities.Token;
+import com.ebikes.iam.enums.TokenType;
 
 @Mapper(
     componentModel = "spring",

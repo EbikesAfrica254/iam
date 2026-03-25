@@ -1,13 +1,15 @@
 package com.ebikes.iam.listeners;
 
+import org.springframework.stereotype.Component;
+
 import com.ebikes.iam.constants.EventConstants.RoutingKeys;
 import com.ebikes.iam.dtos.events.incoming.BatchContactsEvent;
 import com.ebikes.iam.services.contacts.ContactService;
 import com.ebikes.iam.services.events.InboxService;
 import com.ebikes.iam.support.context.EventContext;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
 
 @Component

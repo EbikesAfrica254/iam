@@ -1,14 +1,13 @@
 package com.ebikes.iam.services.keycloak.users;
 
-import com.ebikes.iam.configurations.properties.KeycloakProperties;
-import com.ebikes.iam.dtos.requests.users.UpdateUserExtensionRequest;
-import com.ebikes.iam.enums.ResponseCode;
-import com.ebikes.iam.exceptions.ExternalServiceException;
-import com.ebikes.iam.mappers.KeycloakUserMapper;
-import com.ebikes.iam.support.keycloak.KeycloakResponseUtilities;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import jakarta.ws.rs.core.Response;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
@@ -17,11 +16,15 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import com.ebikes.iam.configurations.properties.KeycloakProperties;
+import com.ebikes.iam.dtos.requests.users.UpdateUserExtensionRequest;
+import com.ebikes.iam.enums.ResponseCode;
+import com.ebikes.iam.exceptions.ExternalServiceException;
+import com.ebikes.iam.mappers.KeycloakUserMapper;
+import com.ebikes.iam.support.keycloak.KeycloakResponseUtilities;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Service

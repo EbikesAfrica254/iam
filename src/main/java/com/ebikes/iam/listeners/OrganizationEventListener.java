@@ -1,5 +1,9 @@
 package com.ebikes.iam.listeners;
 
+import java.util.Set;
+
+import org.springframework.stereotype.Component;
+
 import com.ebikes.iam.constants.EventConstants.RoutingKeys;
 import com.ebikes.iam.dtos.events.incoming.OrganizationApprovedAuditEvent;
 import com.ebikes.iam.dtos.requests.memberships.CreateMembershipRequest;
@@ -9,12 +13,10 @@ import com.ebikes.iam.services.events.InboxService;
 import com.ebikes.iam.services.keycloak.groups.KeycloakGroupService;
 import com.ebikes.iam.services.users.MembershipService;
 import com.ebikes.iam.support.context.EventContext;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
-
-import java.util.Set;
 
 @Component
 @RequiredArgsConstructor

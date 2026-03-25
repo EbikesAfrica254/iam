@@ -1,13 +1,14 @@
 package com.ebikes.iam.support.audit;
 
-import com.ebikes.iam.database.entities.Contact;
-import com.ebikes.iam.database.entities.Membership;
-import com.ebikes.iam.database.entities.UserExtension;
-import lombok.experimental.UtilityClass;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.ebikes.iam.database.entities.Contact;
+import com.ebikes.iam.database.entities.Membership;
+import com.ebikes.iam.database.entities.UserExtension;
+
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class AuditMetadataBuilder {

@@ -28,5 +28,4 @@ public interface ContactRepository
 
   List<Contact> findAllByPhoneNumberInAndOrganizationId(
       List<String> phoneNumbers, String organizationId);
-
 }

@@ -1,15 +1,17 @@
 package com.ebikes.iam.publishers;
 
+import java.util.List;
+
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
 import com.ebikes.iam.database.entities.Outbox;
 import com.ebikes.iam.database.repositories.OutboxRepository;
 import com.ebikes.iam.enums.OutboxStatus;
 import com.ebikes.iam.services.events.OutboxEventProcessor;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor

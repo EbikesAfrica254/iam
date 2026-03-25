@@ -1,5 +1,15 @@
 package com.ebikes.iam.services.tokens;
 
+import java.security.SecureRandom;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Base64;
+import java.util.UUID;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ebikes.iam.configurations.properties.TokenProperties;
 import com.ebikes.iam.configurations.properties.TokenProperties.TokenConfiguration;
 import com.ebikes.iam.database.entities.Token;
@@ -11,17 +21,9 @@ import com.ebikes.iam.exceptions.ResourceNotFoundException;
 import com.ebikes.iam.exceptions.ValidationException;
 import com.ebikes.iam.mappers.TokenMapper;
 import com.ebikes.iam.support.security.TokenHashUtilities;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.security.SecureRandom;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.Base64;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
