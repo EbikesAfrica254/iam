@@ -1,14 +1,16 @@
 package com.ebikes.iam.support.audit;
 
+import org.slf4j.MDC;
+import org.springframework.stereotype.Component;
+
 import com.ebikes.iam.constants.MDCKeys;
 import com.ebikes.iam.dtos.events.outgoing.AuditEvent;
 import com.ebikes.iam.enums.AuditOutcome;
 import com.ebikes.iam.publishers.AuditEventPublisher;
 import com.ebikes.iam.support.context.ExecutionContext;
+
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.slf4j.MDC;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

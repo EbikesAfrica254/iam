@@ -1,11 +1,13 @@
 package com.ebikes.iam.publishers;
 
-import com.ebikes.iam.dtos.events.outgoing.AuditEvent;
-import com.ebikes.iam.services.events.OutboxService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.ebikes.iam.dtos.events.outgoing.AuditEvent;
+import com.ebikes.iam.services.events.OutboxService;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor

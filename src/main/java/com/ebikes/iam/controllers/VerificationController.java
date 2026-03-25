@@ -1,5 +1,13 @@
 package com.ebikes.iam.controllers;
 
+import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.ebikes.iam.dtos.requests.verification.CompleteAccountActivationRequest;
 import com.ebikes.iam.dtos.requests.verification.CompleteEmailVerificationRequest;
 import com.ebikes.iam.dtos.requests.verification.CompletePhoneVerificationRequest;
@@ -7,14 +15,9 @@ import com.ebikes.iam.dtos.requests.verification.EmailVerificationRequest;
 import com.ebikes.iam.dtos.requests.verification.PhoneVerificationRequest;
 import com.ebikes.iam.dtos.responses.api.SuccessResponse;
 import com.ebikes.iam.services.verification.VerificationService;
-import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RequestMapping("/verification")

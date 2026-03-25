@@ -1,10 +1,11 @@
 package com.ebikes.iam.enums;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import static com.ebikes.iam.constants.EventConstants.EventSource.HOST_SERVICE;
+
 import org.springframework.http.HttpStatus;
 
-import static com.ebikes.iam.constants.EventConstants.EventSource.HOST_SERVICE;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor

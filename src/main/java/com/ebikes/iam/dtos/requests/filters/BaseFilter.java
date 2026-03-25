@@ -2,6 +2,7 @@ package com.ebikes.iam.dtos.requests.filters;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -1,10 +1,11 @@
 package com.ebikes.iam.dtos.events.outgoing;
 
-import com.ebikes.iam.constants.EventConstants;
-import jakarta.validation.constraints.NotBlank;
-
 import java.io.Serializable;
 import java.time.Instant;
+
+import jakarta.validation.constraints.NotBlank;
+
+import com.ebikes.iam.constants.EventConstants;
 
 public record UserProvisionedEvent(
     @NotBlank String keycloakUserId,

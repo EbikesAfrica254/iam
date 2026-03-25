@@ -1,11 +1,11 @@
 package com.ebikes.iam.dtos.responses.users;
 
-import com.ebikes.iam.enums.UserStatus;
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+
+import com.ebikes.iam.enums.UserStatus;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record UserExtensionDetailResponse(

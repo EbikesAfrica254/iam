@@ -1,12 +1,9 @@
 package com.ebikes.iam.controllers;
 
-import com.ebikes.iam.dtos.requests.filters.OutboxFilter;
-import com.ebikes.iam.dtos.responses.api.PaginatedResponse;
-import com.ebikes.iam.dtos.responses.api.SuccessResponse;
-import com.ebikes.iam.dtos.responses.outbox.OutboxResponse;
-import com.ebikes.iam.services.events.OutboxService;
+import java.util.UUID;
+
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -16,7 +13,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
+import com.ebikes.iam.dtos.requests.filters.OutboxFilter;
+import com.ebikes.iam.dtos.responses.api.PaginatedResponse;
+import com.ebikes.iam.dtos.responses.api.SuccessResponse;
+import com.ebikes.iam.dtos.responses.outbox.OutboxResponse;
+import com.ebikes.iam.services.events.OutboxService;
+
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RequestMapping("/outbox")

@@ -1,15 +1,17 @@
 package com.ebikes.iam.dtos.requests.users;
 
-import com.ebikes.iam.enums.UserRole;
+import java.io.Serializable;
+import java.util.Set;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
 import org.hibernate.validator.constraints.Length;
 
-import java.io.Serializable;
-import java.util.Set;
+import com.ebikes.iam.enums.UserRole;
 
 public record CreateUserRequest(
     @Length(min = 36, max = 36) String branchId,

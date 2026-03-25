@@ -1,7 +1,8 @@
 package com.ebikes.iam.database.repositories;
 
-import com.ebikes.iam.database.entities.Token;
-import com.ebikes.iam.enums.TokenType;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -10,8 +11,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-import java.util.UUID;
+import com.ebikes.iam.database.entities.Token;
+import com.ebikes.iam.enums.TokenType;
 
 @Repository
 public interface TokenRepository

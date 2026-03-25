@@ -1,12 +1,13 @@
 package com.ebikes.iam.dtos.requests.users;
 
-import com.ebikes.iam.enums.UserStatus;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.UUID;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import java.util.UUID;
+import com.ebikes.iam.enums.UserStatus;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record UpdateUserExtensionRequest(

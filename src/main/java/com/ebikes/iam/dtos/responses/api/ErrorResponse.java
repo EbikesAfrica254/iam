@@ -1,11 +1,11 @@
 package com.ebikes.iam.dtos.responses.api;
 
-import com.ebikes.iam.enums.ResponseCode;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import static com.ebikes.iam.constants.ApplicationConstants.DOCUMENTATION_ERRORS_BASE;
 
 import java.util.List;
 
-import static com.ebikes.iam.constants.ApplicationConstants.DOCUMENTATION_ERRORS_BASE;
+import com.ebikes.iam.enums.ResponseCode;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ErrorResponse(

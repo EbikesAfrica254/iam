@@ -1,14 +1,15 @@
 package com.ebikes.iam.mappers;
 
+import java.io.Serializable;
+import java.util.Map;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
 import com.ebikes.iam.constants.EventConstants.EventTypes;
 import com.ebikes.iam.constants.EventConstants.TemplateNames;
 import com.ebikes.iam.database.entities.UserExtension;
 import com.ebikes.iam.dtos.events.outgoing.NotificationRequest;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-
-import java.io.Serializable;
-import java.util.Map;
 
 @Mapper(componentModel = "spring")
 public interface NotificationMapper {

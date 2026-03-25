@@ -1,10 +1,10 @@
 package com.ebikes.iam.dtos.events.incoming;
 
-import com.ebikes.iam.enums.ContactSourceType;
-
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
+
+import com.ebikes.iam.enums.ContactSourceType;
 
 public record BatchContactsEvent(
     String branchId,

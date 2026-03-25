@@ -1,13 +1,15 @@
 package com.ebikes.iam.publishers;
 
+import org.springframework.stereotype.Component;
+
 import com.ebikes.iam.configurations.properties.NotificationProperties;
 import com.ebikes.iam.constants.EventConstants.RoutingKeys;
 import com.ebikes.iam.dtos.events.outgoing.NotificationRequest;
 import com.ebikes.iam.enums.ChannelType;
 import com.ebikes.iam.services.events.OutboxService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

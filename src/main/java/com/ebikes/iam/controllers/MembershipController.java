@@ -1,14 +1,9 @@
 package com.ebikes.iam.controllers;
 
-import com.ebikes.iam.database.entities.Membership;
-import com.ebikes.iam.dtos.requests.memberships.CreateMembershipRequest;
-import com.ebikes.iam.dtos.requests.memberships.UpdateMembershipRolesRequest;
-import com.ebikes.iam.dtos.responses.api.SuccessResponse;
-import com.ebikes.iam.dtos.responses.memberships.MembershipResponse;
-import com.ebikes.iam.mappers.MembershipMapper;
-import com.ebikes.iam.services.users.MembershipService;
+import java.util.List;
+
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,7 +17,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.ebikes.iam.database.entities.Membership;
+import com.ebikes.iam.dtos.requests.memberships.CreateMembershipRequest;
+import com.ebikes.iam.dtos.requests.memberships.UpdateMembershipRolesRequest;
+import com.ebikes.iam.dtos.responses.api.SuccessResponse;
+import com.ebikes.iam.dtos.responses.memberships.MembershipResponse;
+import com.ebikes.iam.mappers.MembershipMapper;
+import com.ebikes.iam.services.users.MembershipService;
+
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RequestMapping("/memberships/{keycloakUserId}")

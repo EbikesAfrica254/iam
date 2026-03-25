@@ -1,5 +1,18 @@
 package com.ebikes.iam.services.users;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ebikes.iam.constants.EventConstants.EventTypes;
 import com.ebikes.iam.constants.EventConstants.RoutingKeys;
 import com.ebikes.iam.database.entities.Membership;
@@ -24,20 +37,9 @@ import com.ebikes.iam.support.audit.AuditTemplate;
 import com.ebikes.iam.support.context.ExecutionContext;
 import com.ebikes.iam.support.database.FilterUtilities;
 import com.ebikes.iam.support.security.RBACUtilities;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service

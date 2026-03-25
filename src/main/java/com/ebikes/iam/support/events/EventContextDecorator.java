@@ -1,11 +1,13 @@
 package com.ebikes.iam.support.events;
 
+import org.springframework.messaging.Message;
+
 import com.ebikes.iam.constants.EventConstants.EventSource;
 import com.ebikes.iam.constants.EventConstants.MessageHeaders;
 import com.ebikes.iam.support.context.EventContext;
 import com.ebikes.iam.support.context.ExecutionContext;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.Message;
 
 @Slf4j
 public class EventContextDecorator {

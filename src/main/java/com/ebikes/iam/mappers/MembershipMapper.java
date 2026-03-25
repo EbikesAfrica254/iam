@@ -1,16 +1,17 @@
 package com.ebikes.iam.mappers;
 
-import com.ebikes.iam.database.entities.Membership;
-import com.ebikes.iam.dtos.events.incoming.OrganizationApprovedAuditEvent;
-import com.ebikes.iam.dtos.requests.memberships.CreateMembershipRequest;
-import com.ebikes.iam.dtos.responses.memberships.MembershipResponse;
-import com.ebikes.iam.enums.UserRole;
+import java.util.Set;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
-import java.util.Set;
+import com.ebikes.iam.database.entities.Membership;
+import com.ebikes.iam.dtos.events.incoming.OrganizationApprovedAuditEvent;
+import com.ebikes.iam.dtos.requests.memberships.CreateMembershipRequest;
+import com.ebikes.iam.dtos.responses.memberships.MembershipResponse;
+import com.ebikes.iam.enums.UserRole;
 
 @Mapper(
     componentModel = "spring",

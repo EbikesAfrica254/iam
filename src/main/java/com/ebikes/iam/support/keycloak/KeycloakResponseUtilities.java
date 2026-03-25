@@ -1,8 +1,8 @@
 package com.ebikes.iam.support.keycloak;
 
-import jakarta.ws.rs.core.Response;
-
 import java.net.URI;
+
+import jakarta.ws.rs.core.Response;
 
 public final class KeycloakResponseUtilities {
 

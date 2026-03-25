@@ -1,14 +1,12 @@
 package com.ebikes.iam.configurations;
 
-import com.ebikes.iam.configurations.properties.KeycloakProperties;
-import com.ebikes.iam.constants.ApplicationConstants;
-import com.ebikes.iam.enums.ResponseCode;
-import com.ebikes.iam.exceptions.ExternalServiceException;
-import com.ebikes.iam.exceptions.RateLimitException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
+
 import jakarta.ws.rs.client.ClientResponseContext;
 import jakarta.ws.rs.client.ClientResponseFilter;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 import org.keycloak.OAuth2Constants;
@@ -16,12 +14,17 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.ebikes.iam.configurations.properties.KeycloakProperties;
+import com.ebikes.iam.constants.ApplicationConstants;
+import com.ebikes.iam.enums.ResponseCode;
+import com.ebikes.iam.exceptions.ExternalServiceException;
+import com.ebikes.iam.exceptions.RateLimitException;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
 
 @Configuration
 @RequiredArgsConstructor
