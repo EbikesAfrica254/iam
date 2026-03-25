@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<!DOCTYPE import-control PUBLIC
+        "-//Checkstyle//DTD ImportControl Configuration 1.4//EN"
+        "https://checkstyle.org/dtds/import_control_1_4.dtd">
+
+<import-control pkg="com.ebikes.iam" strategyOnMismatch="allowed">
+
+    <!--
+      Intentionally lean policy.
+
+      Goal:
+      - enforce only high-value layering boundaries
+      - avoid default-deny breakage across a single Spring Boot service
+      - let Spotless / ImportOrder handle formatting concerns separately
+    -->
+
+    <!-- ========================================================= -->
+    <!-- CONTROLLERS                                                -->
+    <!-- ========================================================= -->
+
+    <subpackage name="controllers" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.iam.database.entities"/>
+        <disallow pkg="com.ebikes.iam.database.entities.bases"/>
+        <disallow pkg="com.ebikes.iam.database.repositories"/>
+        <disallow pkg="com.ebikes.iam.database.specifications"/>
+        <disallow pkg="com.ebikes.iam.listeners"/>
+        <disallow pkg="com.ebikes.iam.publishers"/>
+        <disallow pkg="com.ebikes.iam.adapters"/>
+    </subpackage>
+
+    <!-- ========================================================= -->
+    <!-- DATABASE                                                   -->
+    <!-- ========================================================= -->
+
+    <subpackage name="database.repositories" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.iam.controllers"/>
+        <disallow pkg="com.ebikes.iam.services"/>
+        <disallow pkg="com.ebikes.iam.listeners"/>
+        <disallow pkg="com.ebikes.iam.publishers"/>
+        <disallow pkg="com.ebikes.iam.adapters"/>
+        <disallow pkg="com.ebikes.iam.mappers"/>
+    </subpackage>
+
+    <subpackage name="database.specifications" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.iam.controllers"/>
+        <disallow pkg="com.ebikes.iam.services"/>
+        <disallow pkg="com.ebikes.iam.listeners"/>
+        <disallow pkg="com.ebikes.iam.publishers"/>
+        <disallow pkg="com.ebikes.iam.adapters"/>
+        <disallow pkg="com.ebikes.iam.mappers"/>
+    </subpackage>
+
+    <subpackage name="database.entities" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.iam.controllers"/>
+        <disallow pkg="com.ebikes.iam.services"/>
+        <disallow pkg="com.ebikes.iam.listeners"/>
+        <disallow pkg="com.ebikes.iam.publishers"/>
+    </subpackage>
+
+    <subpackage name="database.entities.bases" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.iam.controllers"/>
+        <disallow pkg="com.ebikes.iam.services"/>
+        <disallow pkg="com.ebikes.iam.listeners"/>
+        <disallow pkg="com.ebikes.iam.publishers"/>
+    </subpackage>
+
+    <!-- ========================================================= -->
+    <!-- DOMAIN                                                     -->
+    <!-- ========================================================= -->
+
+    <subpackage name="domain" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.iam.controllers"/>
+        <disallow pkg="com.ebikes.iam.database.repositories"/>
+        <disallow pkg="com.ebikes.iam.database.specifications"/>
+        <disallow pkg="com.ebikes.iam.services"/>
+        <disallow pkg="com.ebikes.iam.listeners"/>
+        <disallow pkg="com.ebikes.iam.publishers"/>
+        <disallow pkg="com.ebikes.iam.adapters"/>
+        <disallow pkg="com.ebikes.iam.configurations"/>
+        <disallow pkg="org.springframework"/>
+    </subpackage>
+
+    <!-- ========================================================= -->
+    <!-- ADAPTERS                                                   -->
+    <!-- ========================================================= -->
+
+    <subpackage name="adapters" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.iam.controllers"/>
+        <disallow pkg="com.ebikes.iam.database.repositories"/>
+        <disallow pkg="com.ebikes.iam.database.specifications"/>
+        <disallow pkg="com.ebikes.iam.listeners"/>
+        <disallow pkg="com.ebikes.iam.publishers"/>
+    </subpackage>
+
+    <!-- ========================================================= -->
+    <!-- LISTENERS / PUBLISHERS                                     -->
+    <!-- ========================================================= -->
+
+    <subpackage name="listeners" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.iam.controllers"/>
+        <disallow pkg="com.ebikes.iam.database.repositories"/>
+        <disallow pkg="com.ebikes.iam.database.specifications"/>
+        <disallow pkg="com.ebikes.iam.database.entities"/>
+        <disallow pkg="com.ebikes.iam.database.entities.bases"/>
+        <disallow pkg="com.ebikes.iam.services.pricing"/>
+        <disallow pkg="com.ebikes.iam.services.iam"/>
+        <disallow pkg="com.ebikes.iam.mappers"/>
+        <disallow pkg="com.ebikes.iam.adapters"/>
+    </subpackage>
+
+    <subpackage name="publishers" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.iam.controllers"/>
+        <disallow pkg="com.ebikes.iam.database.repositories"/>
+        <disallow pkg="com.ebikes.iam.database.specifications"/>
+        <disallow pkg="com.ebikes.iam.database.entities"/>
+        <disallow pkg="com.ebikes.iam.database.entities.bases"/>
+        <disallow pkg="com.ebikes.iam.listeners"/>
+        <disallow pkg="com.ebikes.iam.mappers"/>
+        <disallow pkg="com.ebikes.iam.adapters"/>
+    </subpackage>
+
+    <!-- ========================================================= -->
+    <!-- SUPPORT                                                    -->
+    <!-- ========================================================= -->
+
+    <subpackage name="support.context" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.iam.controllers"/>
+        <disallow pkg="com.ebikes.iam.database.repositories"/>
+        <disallow pkg="com.ebikes.iam.database.specifications"/>
+        <disallow pkg="com.ebikes.iam.services"/>
+        <disallow pkg="com.ebikes.iam.listeners"/>
+        <disallow pkg="com.ebikes.iam.publishers"/>
+    </subpackage>
+
+    <subpackage name="support.references" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.iam.controllers"/>
+        <disallow pkg="com.ebikes.iam.database.repositories"/>
+        <disallow pkg="com.ebikes.iam.database.specifications"/>
+        <disallow pkg="com.ebikes.iam.services"/>
+        <disallow pkg="com.ebikes.iam.listeners"/>
+        <disallow pkg="com.ebikes.iam.publishers"/>
+        <disallow pkg="org.springframework"/>
+    </subpackage>
+
+    <subpackage name="support.database" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.iam.controllers"/>
+        <disallow pkg="com.ebikes.iam.services"/>
+        <disallow pkg="com.ebikes.iam.database.repositories"/>
+        <disallow pkg="com.ebikes.iam.listeners"/>
+        <disallow pkg="com.ebikes.iam.publishers"/>
+    </subpackage>
+
+    <subpackage name="support.security" strategyOnMismatch="allowed">
+        <disallow pkg="com.ebikes.iam.controllers"/>
+        <disallow pkg="com.ebikes.iam.database.repositories"/>
+        <disallow pkg="com.ebikes.iam.database.specifications"/>
+        <disallow pkg="com.ebikes.iam.services"/>
+        <disallow pkg="com.ebikes.iam.listeners"/>
+        <disallow pkg="com.ebikes.iam.publishers"/>
+    </subpackage>
+
+</import-control>

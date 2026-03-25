@@ -1,0 +1,47 @@
+package com.ebikes.iam.listeners;
+
+import com.ebikes.iam.support.context.EventContext;
+import com.ebikes.iam.support.events.EventContextDecorator;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.Message;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Component
+@Slf4j
+public class IncomingEventListener {
+
+  private final List<IncomingEventHandler> handlers;
+
+  public IncomingEventListener(List<IncomingEventHandler> handlers) {
+    this.handlers = List.copyOf(handlers);
+  }
+
+  public void route(Message<?> message) {
+    EventContextDecorator.decorate(message, () -> handle(message));
+  }
+
+  private void handle(Message<?> message) {
+    String routingKey = EventContext.getRoutingKey();
+
+    if (routingKey == null || routingKey.isBlank()) {
+      log.warn("Received message with no routingKey header, discarding");
+      return;
+    }
+
+    IncomingEventHandler handler =
+        handlers.stream().filter(h -> h.matches(routingKey)).findFirst().orElse(null);
+
+    if (handler == null) {
+      log.warn("No handler registered for routingKey={}, discarding", routingKey);
+      return;
+    }
+
+    try {
+      handler.handle((byte[]) message.getPayload());
+    } catch (Exception e) {
+      log.error("Failed to process message for routingKey={}", routingKey, e);
+    }
+  }
+}
