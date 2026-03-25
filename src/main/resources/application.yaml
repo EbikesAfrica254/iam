@@ -1,0 +1,185 @@
+server:
+  port: ${SERVER_PORT}
+  servlet:
+    context-path: /ebikes-iam
+
+spring:
+  application:
+    name: ebikes-iam
+
+  cache:
+    redis:
+      cache-null-values: false
+      enable-statistics: true
+      key-prefix: "iam:"
+      time-to-live: ${CACHE_TTL}
+    type: redis
+
+  cloud:
+    function:
+      definition: incomingEventConsumer
+    stream:
+      bindings:
+        incomingEventConsumer-in-0:
+          destination: ebikes.domain-events
+          group: ebikes.iam.incoming
+          consumer:
+            back-off-initial-interval: ${RABBITMQ_CONSUMER_BACKOFF_INITIAL}
+            back-off-max-interval: ${RABBITMQ_CONSUMER_BACKOFF_MAX}
+            back-off-multiplier: ${RABBITMQ_CONSUMER_BACKOFF_MULTIPLIER}
+            max-attempts: ${RABBITMQ_CONSUMER_MAX_ATTEMPTS}
+        eventPublisher-out-0:
+          destination: ebikes.domain-events
+      rabbit:
+        bindings:
+          incomingEventConsumer-in-0:
+            consumer:
+              bindQueue: false
+              declareExchange: false
+              queueNameGroupOnly: true
+          eventPublisher-out-0:
+            producer:
+              declareExchange: false
+              routingKeyExpression: "headers['routingKey']"
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST}
+      password: ${SPRING_DATA_REDIS_PASSWORD}
+      port: ${SPRING_DATA_REDIS_PORT}
+      repositories:
+        enabled: false
+      ssl:
+        enabled: ${SPRING_DATA_REDIS_SSL_ENABLED}
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE}
+      minimum-idle: ${SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: iam
+        format_sql: false
+        show_sql: false
+
+  liquibase:
+    change-log: classpath:database/changelog/changelog-main.yaml
+    enabled: true
+    liquibase-schema: iam
+    parameters:
+      searchPath: classpath:database/changelog/
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI}
+          jwk-set-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI}
+
+  task:
+    scheduling:
+      pool:
+        size: 2
+
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          max-age: PT1H
+
+encryption:
+  key: ${ENCRYPTION_KEY}
+
+keycloak:
+  client-id: ${KEYCLOAK_CLIENT_ID}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
+  realm: ${KEYCLOAK_REALM}
+  url: ${KEYCLOAK_URL}
+  web-client-id: ${KEYCLOAK_WEB_CLIENT_ID}
+
+logging:
+  level:
+    root: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+management:
+  endpoint:
+    health:
+      show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+notifications:
+  enabled: ${NOTIFICATIONS_ENABLED}
+
+rate-limit:
+  resend:
+    max-attempts-per-ip: 10
+    max-attempts-per-user: 5
+    window-minutes: 60
+
+security:
+  public-endpoints:
+    - /actuator/health
+    - /actuator/prometheus
+    - /api-docs/**
+    - /password-reset/**
+    - /users/signup
+    - /swagger-ui/**
+    - /verification/**
+    - /verify/**
+    - /webjars/**
+  scopes:
+    - email
+    - openid
+    - profile
+
+token:
+  account-activation:
+    length: 32
+    validity-hours: 24
+  email-otp:
+    length: 6
+    validity-minutes: 10
+  email-verification:
+    length: 32
+    validity-hours: 24
+  password-reset:
+    length: 32
+    validity-hours: 1
+  phone-number-verification:
+    length: 6
+    validity-minutes: 10
+  sms-otp:
+    length: 6
+    validity-minutes: 10
+  two-factor-auth:
+    length: 6
+    validity-minutes: 5
+
+web-client:
+  base-url: ${WEB_CLIENT_BASE_URL}
+  support: ${WEB_CLIENT_SUPPORT}
+  verification:
+    email:
+      path: /verify
+    password-reset:
+      path: /reset-password
+    phone:
+      path: /verify-phone

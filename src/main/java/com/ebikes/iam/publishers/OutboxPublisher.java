@@ -1,0 +1,34 @@
+package com.ebikes.iam.publishers;
+
+import com.ebikes.iam.database.entities.Outbox;
+import com.ebikes.iam.database.repositories.OutboxRepository;
+import com.ebikes.iam.enums.OutboxStatus;
+import com.ebikes.iam.services.events.OutboxEventProcessor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class OutboxPublisher {
+
+    private final OutboxEventProcessor eventProcessor;
+    private final OutboxRepository repository;
+
+    @Scheduled(fixedDelay = 10000)
+    public void publishPendingEvents() {
+        List<Outbox> pendingEvents = repository.findByStatusOrderByIdAsc(OutboxStatus.PENDING);
+
+        if (pendingEvents.isEmpty()) {
+            return;
+        }
+
+        log.debug("Processing {} pending outbox events", pendingEvents.size());
+
+        pendingEvents.forEach(eventProcessor::process);
+    }
+}

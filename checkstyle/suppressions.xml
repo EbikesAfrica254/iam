@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- formatter-friendly exceptions for annotated records / DTO signatures -->
+    <suppress
+            checks="LineLength"
+            files=".*/src/main/java/com/ebikes/iam/dtos/(requests|responses)/.*\.java"/>
+
+    <!-- @ConfigurationProperties classes use long @Validated annotation chains
+         that cannot be wrapped by Google Java Format -->
+    <suppress
+            checks="LineLength"
+            files=".*/src/main/java/com/ebikes/iam/configurations/properties/.*\.java"/>
+
+    <!-- @AssertTrue message strings on entity cross-field validators cannot be
+         wrapped by Google Java Format — string literals are never split -->
+    <suppress
+            checks="LineLength"
+            files=".*/src/main/java/com/ebikes/iam/database/entities/.*\.java"/>
+
+    <!-- generated sources -->
+    <suppress checks=".*" files=".*/target/generated-sources/.*"/>
+    <suppress checks=".*" files=".*/target/generated-test-sources/.*"/>
+</suppressions>
