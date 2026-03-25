@@ -1,16 +1,18 @@
 package com.ebikes.iam.database.specifications;
 
+import java.util.Optional;
+import java.util.Set;
+
+import org.springframework.data.jpa.domain.Specification;
+
 import com.ebikes.iam.database.entities.Contact;
 import com.ebikes.iam.database.entities.UserExtension;
 import com.ebikes.iam.enums.ResponseCode;
 import com.ebikes.iam.enums.UserRole;
 import com.ebikes.iam.exceptions.AuthorizationException;
 import com.ebikes.iam.support.context.ExecutionContext;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.domain.Specification;
 
-import java.util.Optional;
-import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AuthorizationSpecifications {

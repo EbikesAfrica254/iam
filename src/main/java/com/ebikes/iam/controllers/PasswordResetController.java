@@ -1,17 +1,20 @@
 package com.ebikes.iam.controllers;
 
-import com.ebikes.iam.dtos.requests.passwords.CompletePasswordResetRequest;
-import com.ebikes.iam.dtos.requests.passwords.PasswordResetRequest;
-import com.ebikes.iam.dtos.responses.api.SuccessResponse;
-import com.ebikes.iam.services.verification.VerificationService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.ebikes.iam.dtos.requests.passwords.CompletePasswordResetRequest;
+import com.ebikes.iam.dtos.requests.passwords.PasswordResetRequest;
+import com.ebikes.iam.dtos.responses.api.SuccessResponse;
+import com.ebikes.iam.services.verification.VerificationService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @RequestMapping("/password-reset")

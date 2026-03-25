@@ -1,20 +1,22 @@
 package com.ebikes.iam.database.specifications;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+
+import org.springframework.data.jpa.domain.Specification;
+
 import com.ebikes.iam.database.entities.Contact;
 import com.ebikes.iam.dtos.requests.filters.ContactFilter;
 import com.ebikes.iam.enums.ContactSourceType;
 import com.ebikes.iam.enums.ContactStatus;
 import com.ebikes.iam.support.database.FilterUtilities;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import org.springframework.data.jpa.domain.Specification;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 public class ContactSpecifications {
 

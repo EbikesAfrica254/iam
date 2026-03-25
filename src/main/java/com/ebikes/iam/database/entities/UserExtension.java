@@ -1,8 +1,9 @@
 package com.ebikes.iam.database.entities;
 
-import com.ebikes.iam.database.entities.bases.SoftDeletableEntity;
-import com.ebikes.iam.dtos.requests.users.UpdateUserExtensionRequest;
-import com.ebikes.iam.enums.UserStatus;
+import java.io.Serial;
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,17 +19,19 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import com.ebikes.iam.database.entities.bases.SoftDeletableEntity;
+import com.ebikes.iam.dtos.requests.users.UpdateUserExtensionRequest;
+import com.ebikes.iam.enums.UserStatus;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
-import java.io.Serial;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Getter

@@ -1,12 +1,13 @@
 package com.ebikes.iam.dtos.requests.memberships;
 
-import com.ebikes.iam.enums.UserRole;
+import java.io.Serializable;
+import java.util.Set;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
-import java.io.Serializable;
-import java.util.Set;
+import com.ebikes.iam.enums.UserRole;
 
 public record CreateMembershipRequest(
     String branchId,
