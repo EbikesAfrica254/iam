@@ -1,19 +1,21 @@
 package com.ebikes.iam.database.specifications;
 
-import com.ebikes.iam.database.entities.Outbox;
-import com.ebikes.iam.dtos.requests.filters.OutboxFilter;
-import com.ebikes.iam.enums.OutboxStatus;
-import com.ebikes.iam.support.database.FilterUtilities;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import org.springframework.data.jpa.domain.Specification;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+
+import org.springframework.data.jpa.domain.Specification;
+
+import com.ebikes.iam.database.entities.Outbox;
+import com.ebikes.iam.dtos.requests.filters.OutboxFilter;
+import com.ebikes.iam.enums.OutboxStatus;
+import com.ebikes.iam.support.database.FilterUtilities;
 
 public class OutboxSpecifications {
 

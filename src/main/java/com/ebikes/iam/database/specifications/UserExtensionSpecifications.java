@@ -1,26 +1,28 @@
 package com.ebikes.iam.database.specifications;
 
-import com.ebikes.iam.database.entities.UserExtension;
-import com.ebikes.iam.dtos.requests.filters.UserExtensionFilter;
-import com.ebikes.iam.enums.UserStatus;
-import com.ebikes.iam.support.database.FilterUtilities;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import org.springframework.data.jpa.domain.Specification;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+
+import org.springframework.data.jpa.domain.Specification;
+
+import com.ebikes.iam.database.entities.UserExtension;
+import com.ebikes.iam.dtos.requests.filters.UserExtensionFilter;
+import com.ebikes.iam.enums.UserStatus;
+import com.ebikes.iam.support.database.FilterUtilities;
 
 public class UserExtensionSpecifications {
 
   public static final String FIELD_BRANCH_ID = "branchId";
   public static final String FIELD_COUNTRY_CODE = "countryCode";
   public static final String FIELD_CREATED_AT = "createdAt";
-    public static final String FIELD_EMAIL = "email";
+  public static final String FIELD_EMAIL = "email";
   public static final String FIELD_EMAIL_VERIFIED = "emailVerified";
   public static final String FIELD_FIRST_NAME = "firstName";
   public static final String FIELD_KEYCLOAK_USER_ID = "keycloakUserId";

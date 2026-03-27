@@ -1,9 +1,9 @@
 package com.ebikes.iam.database.entities;
 
-import com.ebikes.iam.database.entities.bases.BaseEntity;
-import com.ebikes.iam.enums.OutboxStatus;
-import com.ebikes.iam.enums.ResponseCode;
-import com.ebikes.iam.exceptions.ValidationException;
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,16 +12,19 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import com.ebikes.iam.database.entities.bases.BaseEntity;
+import com.ebikes.iam.enums.OutboxStatus;
+import com.ebikes.iam.enums.ResponseCode;
+import com.ebikes.iam.exceptions.ValidationException;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
-import java.io.Serializable;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 
 @Entity
 @Getter

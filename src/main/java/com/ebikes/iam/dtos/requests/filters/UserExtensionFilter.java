@@ -1,11 +1,12 @@
 package com.ebikes.iam.dtos.requests.filters;
 
+import java.time.LocalDate;
+
 import com.ebikes.iam.enums.UserStatus;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor

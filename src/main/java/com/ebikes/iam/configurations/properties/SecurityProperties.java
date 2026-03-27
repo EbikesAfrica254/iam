@@ -1,11 +1,12 @@
 package com.ebikes.iam.configurations.properties;
 
-import lombok.Data;
+import java.util.List;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
+import lombok.Data;
 
 @Configuration
 @ConfigurationProperties(prefix = "security")

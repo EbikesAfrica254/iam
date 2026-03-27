@@ -1,9 +1,10 @@
 package com.ebikes.iam.support.keycloak;
 
-import lombok.experimental.UtilityClass;
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.util.DigestUtils;
 
-import java.nio.charset.StandardCharsets;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class GroupPathUtilities {

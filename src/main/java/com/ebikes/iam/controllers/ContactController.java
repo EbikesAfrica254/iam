@@ -1,13 +1,7 @@
 package com.ebikes.iam.controllers;
 
-import com.ebikes.iam.dtos.requests.filters.ContactFilter;
-import com.ebikes.iam.dtos.responses.api.PaginatedResponse;
-import com.ebikes.iam.dtos.responses.api.SuccessResponse;
-import com.ebikes.iam.dtos.responses.contacts.ContactResponse;
-import com.ebikes.iam.services.contacts.ContactService;
-import com.ebikes.iam.services.users.UserExtensionService;
-import com.ebikes.iam.support.context.ExecutionContext;
-import lombok.RequiredArgsConstructor;
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -16,7 +10,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
+import com.ebikes.iam.dtos.requests.filters.ContactFilter;
+import com.ebikes.iam.dtos.responses.api.PaginatedResponse;
+import com.ebikes.iam.dtos.responses.api.SuccessResponse;
+import com.ebikes.iam.dtos.responses.contacts.ContactResponse;
+import com.ebikes.iam.services.contacts.ContactService;
+import com.ebikes.iam.services.users.UserExtensionService;
+import com.ebikes.iam.support.context.ExecutionContext;
+
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RequestMapping("/contacts")

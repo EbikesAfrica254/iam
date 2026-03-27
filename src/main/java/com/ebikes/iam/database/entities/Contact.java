@@ -1,8 +1,8 @@
 package com.ebikes.iam.database.entities;
 
-import com.ebikes.iam.database.entities.bases.BaseEntity;
-import com.ebikes.iam.enums.ContactSourceType;
-import com.ebikes.iam.enums.ContactStatus;
+import java.io.Serial;
+import java.time.OffsetDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,14 +18,16 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
+import com.ebikes.iam.database.entities.bases.BaseEntity;
+import com.ebikes.iam.enums.ContactSourceType;
+import com.ebikes.iam.enums.ContactStatus;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.io.Serial;
-import java.time.OffsetDateTime;
 
 @Entity
 @Getter

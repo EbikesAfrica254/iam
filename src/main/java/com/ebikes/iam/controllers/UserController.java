@@ -1,21 +1,9 @@
 package com.ebikes.iam.controllers;
 
-import com.ebikes.iam.dtos.requests.filters.UserExtensionFilter;
-import com.ebikes.iam.dtos.requests.users.CreateUserRequest;
-import com.ebikes.iam.dtos.requests.users.SignupRequest;
-import com.ebikes.iam.dtos.requests.users.UpdateUserExtensionRequest;
-import com.ebikes.iam.dtos.responses.api.PaginatedResponse;
-import com.ebikes.iam.dtos.responses.api.SuccessResponse;
-import com.ebikes.iam.dtos.responses.users.UserExtensionDetailResponse;
-import com.ebikes.iam.dtos.responses.users.UserExtensionSummaryResponse;
-import com.ebikes.iam.dtos.responses.users.UserProfileResponse;
-import com.ebikes.iam.enums.UserStatus;
-import com.ebikes.iam.services.users.UserCreationAuthorizationService;
-import com.ebikes.iam.services.users.UserExtensionService;
-import com.ebikes.iam.services.users.UserProvisioningService;
-import com.ebikes.iam.support.context.ExecutionContext;
+import java.util.UUID;
+
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +18,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
+import com.ebikes.iam.dtos.requests.filters.UserExtensionFilter;
+import com.ebikes.iam.dtos.requests.users.CreateUserRequest;
+import com.ebikes.iam.dtos.requests.users.SignupRequest;
+import com.ebikes.iam.dtos.requests.users.UpdateUserExtensionRequest;
+import com.ebikes.iam.dtos.responses.api.PaginatedResponse;
+import com.ebikes.iam.dtos.responses.api.SuccessResponse;
+import com.ebikes.iam.dtos.responses.users.UserExtensionDetailResponse;
+import com.ebikes.iam.dtos.responses.users.UserExtensionSummaryResponse;
+import com.ebikes.iam.dtos.responses.users.UserProfileResponse;
+import com.ebikes.iam.enums.UserStatus;
+import com.ebikes.iam.services.users.UserCreationAuthorizationService;
+import com.ebikes.iam.services.users.UserExtensionService;
+import com.ebikes.iam.services.users.UserProvisioningService;
+import com.ebikes.iam.support.context.ExecutionContext;
+
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RequestMapping("/users")

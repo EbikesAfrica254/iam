@@ -1,10 +1,10 @@
 package com.ebikes.iam.support.security;
 
-import lombok.experimental.UtilityClass;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class TokenHashUtilities {

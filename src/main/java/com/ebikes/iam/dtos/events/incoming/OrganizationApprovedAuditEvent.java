@@ -1,11 +1,11 @@
 package com.ebikes.iam.dtos.events.incoming;
 
-import com.ebikes.iam.enums.AuditOutcome;
-
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
+
+import com.ebikes.iam.enums.AuditOutcome;
 
 public record OrganizationApprovedAuditEvent(
     UUID entityId,

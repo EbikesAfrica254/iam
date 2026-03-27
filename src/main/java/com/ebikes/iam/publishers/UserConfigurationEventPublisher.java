@@ -1,14 +1,16 @@
 package com.ebikes.iam.publishers;
 
+import org.springframework.stereotype.Component;
+
 import com.ebikes.iam.constants.EventConstants.EventSource;
 import com.ebikes.iam.constants.EventConstants.EventTypes;
 import com.ebikes.iam.constants.EventConstants.RoutingKeys;
 import com.ebikes.iam.database.entities.UserExtension;
 import com.ebikes.iam.dtos.events.outgoing.UserProvisionedEvent;
 import com.ebikes.iam.services.events.OutboxService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

@@ -1,11 +1,12 @@
 package com.ebikes.iam.mappers;
 
-import com.ebikes.iam.database.entities.Contact;
-import com.ebikes.iam.dtos.responses.contacts.ContactResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
+
+import com.ebikes.iam.database.entities.Contact;
+import com.ebikes.iam.dtos.responses.contacts.ContactResponse;
 
 @Mapper(
     componentModel = "spring",

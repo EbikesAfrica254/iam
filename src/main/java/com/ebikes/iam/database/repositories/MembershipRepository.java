@@ -1,12 +1,13 @@
 package com.ebikes.iam.database.repositories;
 
-import com.ebikes.iam.database.entities.Membership;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.ebikes.iam.database.entities.Membership;
 
 @Repository
 public interface MembershipRepository extends JpaRepository<Membership, UUID> {

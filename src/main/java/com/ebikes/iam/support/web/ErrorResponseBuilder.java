@@ -1,17 +1,18 @@
 package com.ebikes.iam.support.web;
 
+import java.util.List;
+
+import org.slf4j.MDC;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import com.ebikes.iam.constants.ApplicationConstants;
 import com.ebikes.iam.constants.MDCKeys;
 import com.ebikes.iam.dtos.responses.api.ErrorResponse;
 import com.ebikes.iam.dtos.responses.api.ErrorResponse.ErrorDetail;
 import com.ebikes.iam.enums.ResponseCode;
 import com.ebikes.iam.support.references.ReferenceGenerator;
-import org.slf4j.MDC;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
-import java.util.List;
 
 public final class ErrorResponseBuilder {
 

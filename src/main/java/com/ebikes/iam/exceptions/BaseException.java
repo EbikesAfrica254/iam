@@ -1,9 +1,10 @@
 package com.ebikes.iam.exceptions;
 
-import com.ebikes.iam.enums.ResponseCode;
-import lombok.Getter;
-
 import java.io.Serial;
+
+import com.ebikes.iam.enums.ResponseCode;
+
+import lombok.Getter;
 
 @Getter
 public abstract class BaseException extends RuntimeException {

@@ -1,9 +1,10 @@
 package com.ebikes.iam.dtos.responses.api;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record PaginatedResponse<T>(

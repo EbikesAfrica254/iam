@@ -1,13 +1,15 @@
 package com.ebikes.iam.mappers;
 
-import com.ebikes.iam.dtos.requests.users.UpdateUserExtensionRequest;
+import java.util.List;
+
 import jakarta.validation.constraints.NotBlank;
+
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
-import java.util.List;
+import com.ebikes.iam.dtos.requests.users.UpdateUserExtensionRequest;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface KeycloakUserMapper {

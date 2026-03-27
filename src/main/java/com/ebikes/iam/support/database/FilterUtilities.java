@@ -1,17 +1,19 @@
 package com.ebikes.iam.support.database;
 
-import com.ebikes.iam.dtos.requests.filters.BaseFilter;
-import com.ebikes.iam.enums.ResponseCode;
-import com.ebikes.iam.exceptions.ValidationException;
-import lombok.experimental.UtilityClass;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.util.Set;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.util.Set;
+import com.ebikes.iam.dtos.requests.filters.BaseFilter;
+import com.ebikes.iam.enums.ResponseCode;
+import com.ebikes.iam.exceptions.ValidationException;
+
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class FilterUtilities {

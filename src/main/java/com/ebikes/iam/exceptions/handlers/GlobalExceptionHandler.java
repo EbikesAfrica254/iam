@@ -1,14 +1,9 @@
 package com.ebikes.iam.exceptions.handlers;
 
-import com.ebikes.iam.dtos.responses.api.ErrorResponse;
-import com.ebikes.iam.dtos.responses.api.ErrorResponse.ErrorDetail;
-import com.ebikes.iam.enums.ResponseCode;
-import com.ebikes.iam.exceptions.BaseException;
-import com.ebikes.iam.exceptions.ExternalServiceException;
-import com.ebikes.iam.exceptions.ValidationException;
-import com.ebikes.iam.support.web.ErrorResponseBuilder;
+import java.util.List;
+
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,7 +12,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.util.List;
+import com.ebikes.iam.dtos.responses.api.ErrorResponse;
+import com.ebikes.iam.dtos.responses.api.ErrorResponse.ErrorDetail;
+import com.ebikes.iam.enums.ResponseCode;
+import com.ebikes.iam.exceptions.BaseException;
+import com.ebikes.iam.exceptions.ExternalServiceException;
+import com.ebikes.iam.exceptions.ValidationException;
+import com.ebikes.iam.support.web.ErrorResponseBuilder;
+
+import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
 @Slf4j

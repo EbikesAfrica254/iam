@@ -1,21 +1,23 @@
 package com.ebikes.iam.services.users;
 
+import static com.ebikes.iam.support.security.RBACUtilities.getRequiredAuthorityToCreate;
+
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ebikes.iam.database.entities.Membership;
 import com.ebikes.iam.enums.ResponseCode;
 import com.ebikes.iam.enums.UserRole;
 import com.ebikes.iam.exceptions.AuthorizationException;
 import com.ebikes.iam.support.context.ExecutionContext;
 import com.ebikes.iam.support.security.RBACUtilities;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.ebikes.iam.support.security.RBACUtilities.getRequiredAuthorityToCreate;
 
 @RequiredArgsConstructor
 @Service

@@ -1,5 +1,13 @@
 package com.ebikes.iam.services.users;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ebikes.iam.configurations.properties.KeycloakProperties;
 import com.ebikes.iam.constants.ApplicationConstants;
 import com.ebikes.iam.constants.EventConstants.EventTypes;
@@ -20,15 +28,9 @@ import com.ebikes.iam.support.audit.AuditContext;
 import com.ebikes.iam.support.audit.AuditTemplate;
 import com.ebikes.iam.support.context.ExecutionContext;
 import com.ebikes.iam.support.security.RBACUtilities;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 @RequiredArgsConstructor
 @Service

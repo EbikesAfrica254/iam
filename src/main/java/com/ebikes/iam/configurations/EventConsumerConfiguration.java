@@ -1,12 +1,14 @@
 package com.ebikes.iam.configurations;
 
-import com.ebikes.iam.listeners.IncomingEventListener;
-import lombok.RequiredArgsConstructor;
+import java.util.function.Consumer;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 
-import java.util.function.Consumer;
+import com.ebikes.iam.listeners.IncomingEventListener;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor

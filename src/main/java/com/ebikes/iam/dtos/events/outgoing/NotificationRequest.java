@@ -1,14 +1,15 @@
 package com.ebikes.iam.dtos.events.outgoing;
 
-import com.ebikes.iam.enums.ChannelType;
-import com.ebikes.iam.enums.NotificationCategory;
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.Map;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.Map;
+import com.ebikes.iam.enums.ChannelType;
+import com.ebikes.iam.enums.NotificationCategory;
 
 public record NotificationRequest(
     String branchId,
