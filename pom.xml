@@ -91,6 +91,12 @@
       <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
 
+    <!-- micrometer for application metrics instrumentation -->
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+    </dependency>
+
     <!-- data redis for caching and session management -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
