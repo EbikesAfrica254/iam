@@ -7,8 +7,7 @@ on:
       - staging
       - main
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: ci-pr-${{ github.head_ref }}
@@ -41,6 +40,7 @@ jobs:
     if: needs.changes.outputs.source == 'true'
     runs-on: ubuntu-22.04
     timeout-minutes: 20
+    permissions: {}
 
     steps:
       - name: Checkout
