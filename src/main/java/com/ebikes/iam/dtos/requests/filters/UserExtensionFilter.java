@@ -1,6 +1,6 @@
 package com.ebikes.iam.dtos.requests.filters;
 
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 import com.ebikes.iam.enums.UserStatus;
 
@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 public class UserExtensionFilter extends BaseFilter {
   private String branchId;
   private String countryCode;
-  private LocalDate createdDateFrom;
-  private LocalDate createdDateTo;
+  private OffsetDateTime createdAtFrom;
+  private OffsetDateTime createdAtTo;
   private String email;
   private Boolean emailVerified;
   private String firstName;

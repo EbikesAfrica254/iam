@@ -1,14 +1,10 @@
 package com.ebikes.iam.database.specifications;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
@@ -40,9 +36,7 @@ public class ContactSpecifications {
           FIELD_SOURCE_TYPE,
           FIELD_STATUS);
 
-  private ContactSpecifications() {
-    // prevent instantiation
-  }
+  private ContactSpecifications() {}
 
   public static Specification<Contact> buildSpecification(ContactFilter filter) {
     return (root, query, criteriaBuilder) -> {
@@ -51,28 +45,28 @@ public class ContactSpecifications {
       predicates.add(
           AuthorizationSpecifications.forContacts().toPredicate(root, query, criteriaBuilder));
 
-      addIfPresent(
+      FilterUtilities.addIfPresent(
           predicates,
           root,
           query,
           criteriaBuilder,
           filter.getBranchId(),
           hasBranchId(filter.getBranchId()));
-      addIfPresent(
+      FilterUtilities.addIfPresent(
           predicates,
           root,
           query,
           criteriaBuilder,
           filter.getOrganizationId(),
           hasOrganizationId(filter.getOrganizationId()));
-      addIfPresent(
+      FilterUtilities.addIfPresent(
           predicates,
           root,
           query,
           criteriaBuilder,
           filter.getPhoneNumber(),
           hasPhoneNumber(filter.getPhoneNumber()));
-      addIfPresent(
+      FilterUtilities.addIfPresent(
           predicates,
           root,
           query,
@@ -80,15 +74,15 @@ public class ContactSpecifications {
           filter.getSourceReference(),
           hasSourceReference(filter.getSourceReference()));
 
-      addDateRange(
+      FilterUtilities.addDateRange(
           predicates,
           root,
           query,
           criteriaBuilder,
           FIELD_CREATED_AT,
-          filter.getCreatedFrom(),
-          filter.getCreatedTo());
-      addDateRange(
+          filter.getCreatedAtFrom(),
+          filter.getCreatedAtTo());
+      FilterUtilities.addDateRange(
           predicates,
           root,
           query,
@@ -137,31 +131,5 @@ public class ContactSpecifications {
 
   public static Specification<Contact> hasStatus(ContactStatus status) {
     return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(FIELD_STATUS), status);
-  }
-
-  private static void addDateRange(
-      List<Predicate> predicates,
-      Root<Contact> root,
-      CriteriaQuery<?> query,
-      CriteriaBuilder criteriaBuilder,
-      String field,
-      LocalDate from,
-      LocalDate to) {
-    if (from != null || to != null) {
-      Specification<Contact> spec = FilterUtilities.dateRangeBetween(field, from, to);
-      predicates.add(spec.toPredicate(root, query, criteriaBuilder));
-    }
-  }
-
-  private static void addIfPresent(
-      List<Predicate> predicates,
-      Root<Contact> root,
-      CriteriaQuery<?> query,
-      CriteriaBuilder criteriaBuilder,
-      String value,
-      Specification<Contact> spec) {
-    if (value != null && !value.isBlank()) {
-      predicates.add(spec.toPredicate(root, query, criteriaBuilder));
-    }
   }
 }

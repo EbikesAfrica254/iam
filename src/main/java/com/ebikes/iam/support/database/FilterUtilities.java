@@ -1,8 +1,13 @@
 package com.ebikes.iam.support.database;
 
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Set;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,21 +38,42 @@ public class FilterUtilities {
     return PageRequest.of(zeroIndexedPage, filter.getSize(), sort);
   }
 
+  public static <T> void addDateRange(
+      List<Predicate> predicates,
+      Root<T> root,
+      CriteriaQuery<?> query,
+      CriteriaBuilder criteriaBuilder,
+      String field,
+      OffsetDateTime from,
+      OffsetDateTime to) {
+    if (from != null || to != null) {
+      predicates.add(
+          FilterUtilities.<T>dateRangeBetween(field, from, to)
+              .toPredicate(root, query, criteriaBuilder));
+    }
+  }
+
+  public static <T> void addIfPresent(
+      List<Predicate> predicates,
+      Root<T> root,
+      CriteriaQuery<?> query,
+      CriteriaBuilder criteriaBuilder,
+      Object value,
+      Specification<T> spec) {
+    if (value != null && !(value instanceof String s && s.isBlank())) {
+      predicates.add(spec.toPredicate(root, query, criteriaBuilder));
+    }
+  }
+
   public static <T> Specification<T> dateRangeBetween(
-      String fieldPath, LocalDate from, LocalDate to) {
+      String fieldPath, OffsetDateTime from, OffsetDateTime to) {
     return (root, query, criteriaBuilder) -> {
       if (from != null && to != null) {
-        OffsetDateTime fromDateTime = from.atStartOfDay().atOffset(java.time.ZoneOffset.UTC);
-        OffsetDateTime toDateTime =
-            to.plusDays(1).atStartOfDay().atOffset(java.time.ZoneOffset.UTC);
-        return criteriaBuilder.between(root.get(fieldPath), fromDateTime, toDateTime);
+        return criteriaBuilder.between(root.get(fieldPath), from, to);
       } else if (from != null) {
-        OffsetDateTime fromDateTime = from.atStartOfDay().atOffset(java.time.ZoneOffset.UTC);
-        return criteriaBuilder.greaterThanOrEqualTo(root.get(fieldPath), fromDateTime);
+        return criteriaBuilder.greaterThanOrEqualTo(root.get(fieldPath), from);
       } else if (to != null) {
-        OffsetDateTime toDateTime =
-            to.plusDays(1).atStartOfDay().atOffset(java.time.ZoneOffset.UTC);
-        return criteriaBuilder.lessThan(root.get(fieldPath), toDateTime);
+        return criteriaBuilder.lessThanOrEqualTo(root.get(fieldPath), to);
       }
       return criteriaBuilder.conjunction();
     };
