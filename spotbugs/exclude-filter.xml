@@ -94,4 +94,19 @@
         <Bug pattern="SE_BAD_FIELD"/>
     </Match>
 
+    <!--
+      EI_EXPOSE_REP: false positive on ExecutionContext.UserContext record.
+
+      Set.copyOf() in the compact constructor already produces an unmodifiable set,
+      so the returned reference cannot be used to mutate internal state. SpotBugs
+      does not track immutability through Set.copyOf() and fires anyway.
+
+      Confirmed false positive:
+      - https://github.com/spotbugs/spotbugs/issues/3022
+    -->
+    <Match>
+        <Class name="com.ebikes.iam.support.context.ExecutionContext$UserContext"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
 </FindBugsFilter>
