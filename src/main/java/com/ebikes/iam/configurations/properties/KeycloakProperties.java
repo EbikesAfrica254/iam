@@ -15,9 +15,7 @@ import lombok.Data;
 @Data
 public class KeycloakProperties {
 
-  @NotBlank(message = "'base-organization-id' must be configured.") private String baseOrganizationId = "00000000-0000-0000-0000-000000000000";
-
-  @NotBlank(message = "'base-organization-name' must be configured.") private String baseOrganizationName = "Ebikes Africa";
+  @NotBlank(message = "'base-organizations-id' must be configured.") private String baseOrganizationId = "00000000-0000-0000-0000-000000000000";
 
   @NotBlank(message = "'client-id' must be configured.") private String clientId;
 
