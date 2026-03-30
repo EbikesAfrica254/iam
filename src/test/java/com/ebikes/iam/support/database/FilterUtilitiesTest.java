@@ -3,6 +3,7 @@ package com.ebikes.iam.support.database;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.Objects;
 import java.util.Set;
 
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +31,7 @@ class FilterUtilitiesTest {
     Pageable pageable = FilterUtilities.buildPageable(filter, ALLOWED_FIELDS);
 
     assertThat(pageable.getPageSize()).isEqualTo(10);
-    assertThat(pageable.getSort().getOrderFor("status").getDirection())
+    assertThat(Objects.requireNonNull(pageable.getSort().getOrderFor("status")).getDirection())
         .isEqualTo(Sort.Direction.ASC);
   }
 

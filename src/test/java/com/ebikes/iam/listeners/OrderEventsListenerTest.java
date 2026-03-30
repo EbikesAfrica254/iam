@@ -74,7 +74,7 @@ class OrderEventsListenerTest {
   class Handle {
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
       when(objectMapper.readValue(PAYLOAD, BatchContactsEvent.class)).thenReturn(event);
     }
 

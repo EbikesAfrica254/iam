@@ -79,7 +79,7 @@ class OrganizationCreatedEventListenerTest {
   class Handle {
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
       when(objectMapper.readValue(PAYLOAD, OrganizationCreatedEvent.class)).thenReturn(event);
     }
 

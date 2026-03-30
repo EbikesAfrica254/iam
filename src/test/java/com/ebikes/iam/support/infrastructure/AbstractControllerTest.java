@@ -16,7 +16,6 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import com.ebikes.iam.configurations.properties.SecurityProperties;
 import com.ebikes.iam.configurations.security.SecurityConfiguration;
-import com.ebikes.iam.enums.UserRole;
 import com.ebikes.iam.support.fixtures.SecurityFixtures;
 
 @ActiveProfiles("test")
@@ -51,10 +50,6 @@ public abstract class AbstractControllerTest {
 
   protected JwtRequestPostProcessor authenticatedJwt() {
     return SecurityFixtures.authenticatedJwt();
-  }
-
-  protected JwtRequestPostProcessor authenticatedJwt(UserRole... roles) {
-    return SecurityFixtures.authenticatedJwt(roles);
   }
 
   protected RequestPostProcessor anonymous() {

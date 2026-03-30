@@ -109,11 +109,11 @@ class ContactServiceTest {
     return contact;
   }
 
-  private Contact claimedContact(UUID id, String phoneNumber, OffsetDateTime expiresAt) {
+  private Contact claimedContact(UUID id, OffsetDateTime expiresAt) {
     Contact contact =
         ContactFixtures.claimed(ORGANIZATION_ID, UserExtensionFixtures.active(ORGANIZATION_ID));
     ReflectionTestUtils.setField(contact, "id", id);
-    ReflectionTestUtils.setField(contact, "phoneNumber", phoneNumber);
+    ReflectionTestUtils.setField(contact, "phoneNumber", "+254700000001");
     ReflectionTestUtils.setField(contact, "expiresAt", expiresAt);
     return contact;
   }
@@ -131,6 +131,7 @@ class ContactServiceTest {
 
     @Test
     @DisplayName("should claim contact successfully")
+    @SuppressWarnings("unchecked")
     void shouldClaimContactSuccessfully() {
       stubAuditTemplateToExecute();
       UUID contactId = UUID.randomUUID();
@@ -204,8 +205,7 @@ class ContactServiceTest {
     void shouldReturnExistingClaimedContacts() {
       UUID existingId = UUID.randomUUID();
       Contact existing =
-          claimedContact(
-              existingId, "+254700000001", OffsetDateTime.now(ZoneOffset.UTC).plusHours(24));
+          claimedContact(existingId, OffsetDateTime.now(ZoneOffset.UTC).plusHours(24));
       BatchContactsEvent event = batchEvent(Set.of("+254700000001"));
 
       when(contactProperties.getExpiryHours()).thenReturn(24);
@@ -294,9 +294,7 @@ class ContactServiceTest {
       UUID staleId = UUID.randomUUID();
       UUID freshId = UUID.randomUUID();
 
-      Contact claimed =
-          claimedContact(
-              claimedId, "+254700000001", OffsetDateTime.now(ZoneOffset.UTC).plusHours(24));
+      Contact claimed = claimedContact(claimedId, OffsetDateTime.now(ZoneOffset.UTC).plusHours(24));
       Contact stale =
           unresolvedContact(
               staleId, "+254700000002", OffsetDateTime.now(ZoneOffset.UTC).minusHours(10));

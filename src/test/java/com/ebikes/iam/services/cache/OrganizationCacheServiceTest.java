@@ -1,9 +1,17 @@
 package com.ebikes.iam.services.cache;
 
-import com.ebikes.iam.adapters.organizations.OrganizationServiceAdapter;
-import com.ebikes.iam.configurations.properties.CacheProperties;
-import com.ebikes.iam.dtos.adapters.organizations.Branch;
-import com.ebikes.iam.dtos.adapters.organizations.Organization;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -14,17 +22,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.ebikes.iam.adapters.organizations.OrganizationServiceAdapter;
+import com.ebikes.iam.configurations.properties.CacheProperties;
+import com.ebikes.iam.dtos.adapters.organizations.Branch;
+import com.ebikes.iam.dtos.adapters.organizations.Organization;
 
 @DisplayName("OrganizationCacheService")
 @ExtendWith(MockitoExtension.class)

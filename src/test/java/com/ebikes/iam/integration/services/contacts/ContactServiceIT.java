@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.ebikes.iam.constants.EventConstants.AuditEvents;
 import com.ebikes.iam.constants.EventConstants.DomainEvents;
 import com.ebikes.iam.constants.EventConstants.RoutingKeys;
 import com.ebikes.iam.database.entities.Contact;
@@ -74,7 +75,7 @@ class ContactServiceIT extends AbstractIntegrationTest {
           .satisfies(
               o -> {
                 assertThat(o.getEventType()).isEqualTo(DomainEvents.Contact.CLAIMED);
-                assertThat(o.getRoutingKey()).isEqualTo(RoutingKeys.IAM_CONTACT_CONFIGURATION);
+                assertThat(o.getRoutingKey()).isEqualTo(AuditEvents.CONTACT);
               });
     }
 

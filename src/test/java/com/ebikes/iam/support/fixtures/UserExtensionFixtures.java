@@ -80,10 +80,6 @@ public final class UserExtensionFixtures {
     return persistedBase(UUID.randomUUID().toString()).build();
   }
 
-  public static UserExtension persisted(String organizationId) {
-    return persistedBase(organizationId).build();
-  }
-
   private static UserExtension.UserExtensionBuilder<?, ?> persistedBase(String organizationId) {
     return base(organizationId).id(UUID.randomUUID()).version(0L);
   }
