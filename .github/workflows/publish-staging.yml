@@ -150,7 +150,7 @@ jobs:
               --instance-ids "${INSTANCE_ID}" \
               --document-name "AWS-RunShellScript" \
               --comment "Deploy iam sha-${SHORT_SHA}" \
-              --parameters commands="/usr/local/bin/ebikes-deploy-backend deploy iam ${DEPLOYMENT_REFERENCE}" \
+              --parameters commands="/usr/local/bin/ebikes-deploy-service deploy iam ${DEPLOYMENT_REFERENCE}" \
               --query 'Command.CommandId' \
               --output text
           )"
