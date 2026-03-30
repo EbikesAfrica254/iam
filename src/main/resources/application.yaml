@@ -92,6 +92,22 @@ spring:
         cachecontrol:
           max-age: PT1H
 
+clients:
+  client:
+    base-url: ${CLIENT_BASE_URL}
+    verification:
+      account-activation:
+        path: /verify
+      email:
+        path: /verify
+      password-reset:
+        path: /verify
+
+contact:
+  expiry-cron: ${CONTACT_EXPIRY_CRON}
+  expiry-hours: ${CONTACT_EXPIRY_HOURS}
+  stale-threshold-hours: ${CONTACT_STALE_THRESHOLD_HOURS}
+
 keycloak:
   client-id: ${KEYCLOAK_CLIENT_ID}
   client-secret: ${KEYCLOAK_CLIENT_SECRET}
@@ -102,6 +118,7 @@ keycloak:
 logging:
   level:
     root: INFO
+    com.ebikes.iam: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
@@ -139,6 +156,10 @@ security:
     - openid
     - profile
 
+services:
+  organizations:
+    base-url: ${ORGANIZATION_SERVICE_BASE_URL}
+
 token:
   account-activation:
     length: 32
@@ -161,14 +182,3 @@ token:
   two-factor-auth:
     length: 6
     validity-minutes: 5
-
-web-client:
-  base-url: ${WEB_CLIENT_BASE_URL}
-  support: ${WEB_CLIENT_SUPPORT}
-  verification:
-    email:
-      path: /verify
-    password-reset:
-      path: /reset-password
-    phone:
-      path: /verify-phone
