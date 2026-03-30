@@ -6,21 +6,18 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ebikes.iam.constants.EventConstants.EventTypes;
-import com.ebikes.iam.constants.EventConstants.RoutingKeys;
+import com.ebikes.iam.adapters.keycloak.KeycloakUserAdapter;
+import com.ebikes.iam.constants.EventConstants.AuditEvents;
+import com.ebikes.iam.constants.EventConstants.DomainEvents;
 import com.ebikes.iam.constants.MDCKeys;
-import com.ebikes.iam.database.entities.Membership;
 import com.ebikes.iam.database.entities.UserExtension;
 import com.ebikes.iam.enums.ResponseCode;
 import com.ebikes.iam.enums.TokenType;
 import com.ebikes.iam.enums.UserStatus;
-import com.ebikes.iam.exceptions.ResourceNotFoundException;
 import com.ebikes.iam.exceptions.ValidationException;
-import com.ebikes.iam.services.keycloak.users.KeycloakUserService;
 import com.ebikes.iam.services.notifications.NotificationService;
-import com.ebikes.iam.services.security.RateLimitService;
+import com.ebikes.iam.services.ratelimit.RateLimitService;
 import com.ebikes.iam.services.tokens.TokenService;
-import com.ebikes.iam.services.users.MembershipService;
 import com.ebikes.iam.services.users.UserExtensionService;
 import com.ebikes.iam.support.audit.AuditContext;
 import com.ebikes.iam.support.audit.AuditMetadataBuilder;
@@ -41,24 +38,23 @@ public class VerificationService {
   private static final String RATE_LIMIT_KEY_PASSWORD_RESET = "PASSWORD_RESET";
   private static final String RATE_LIMIT_KEY_PHONE_VERIFICATION = "PHONE_VERIFICATION";
 
-  private static final VerificationRequestConfig EMAIL_VERIFICATION_CONFIG =
-      new VerificationRequestConfig(
+  private static final VerificationRequestConfiguration EMAIL_VERIFICATION_CONFIG =
+      new VerificationRequestConfiguration(
           NotificationType.EMAIL_OTP, RATE_LIMIT_KEY_EMAIL_VERIFICATION, true, TokenType.EMAIL_OTP);
 
-  private static final VerificationRequestConfig PASSWORD_RESET_CONFIG =
-      new VerificationRequestConfig(
+  private static final VerificationRequestConfiguration PASSWORD_RESET_CONFIG =
+      new VerificationRequestConfiguration(
           NotificationType.PASSWORD_RESET,
           RATE_LIMIT_KEY_PASSWORD_RESET,
           false,
           TokenType.PASSWORD_RESET);
 
-  private static final VerificationRequestConfig PHONE_VERIFICATION_CONFIG =
-      new VerificationRequestConfig(
+  private static final VerificationRequestConfiguration PHONE_VERIFICATION_CONFIG =
+      new VerificationRequestConfiguration(
           NotificationType.PHONE_OTP, RATE_LIMIT_KEY_PHONE_VERIFICATION, true, TokenType.SMS_OTP);
 
   private final AuditTemplate auditTemplate;
-  private final KeycloakUserService keycloakUserService;
-  private final MembershipService membershipService;
+  private final KeycloakUserAdapter keycloakUserAdapter;
   private final NotificationService notificationService;
   private final RateLimitService rateLimitService;
   private final TokenService tokenService;
@@ -76,17 +72,17 @@ public class VerificationService {
         new AuditContext(
             userExtension.getId(),
             ENTITY_TYPE,
-            EventTypes.IAM.ACCOUNT_VERIFICATION_COMPLETED,
+            DomainEvents.UserExtension.ACTIVATED,
             AuditMetadataBuilder.forUserExtension(userExtension),
             userExtension.getOrganizationId(),
-            RoutingKeys.IAM_ACCOUNT_AUDIT);
+            AuditEvents.USER_EXTENSION);
 
     auditTemplate.execute(
         context,
         () -> {
-          keycloakUserService.resetPassword(userExtension.getKeycloakUserId(), password, false);
-          keycloakUserService.verifyEmail(userExtension.getKeycloakUserId());
-          keycloakUserService.enableUser(userExtension.getKeycloakUserId());
+          keycloakUserAdapter.resetPassword(userExtension.getKeycloakUserId(), password, false);
+          keycloakUserAdapter.verifyEmail(userExtension.getKeycloakUserId());
+          keycloakUserAdapter.enableUser(userExtension.getKeycloakUserId());
           userExtensionService.activate(userExtension);
           tokenService.consumeToken(tokenHash);
         });
@@ -106,10 +102,10 @@ public class VerificationService {
         new AuditContext(
             userExtension.getId(),
             ENTITY_TYPE,
-            EventTypes.IAM.EMAIL_VERIFICATION_COMPLETED,
+            DomainEvents.UserExtension.EMAIL_VERIFIED,
             AuditMetadataBuilder.forUserExtension(userExtension),
             userExtension.getOrganizationId(),
-            RoutingKeys.IAM_EMAIL_AUDIT);
+            AuditEvents.USER_EXTENSION);
 
     auditTemplate.execute(
         context,
@@ -133,15 +129,15 @@ public class VerificationService {
         new AuditContext(
             userExtension.getId(),
             ENTITY_TYPE,
-            EventTypes.IAM.PASSWORD_RESET_COMPLETED,
+            DomainEvents.UserExtension.PASSWORD_RESET,
             AuditMetadataBuilder.forUserExtension(userExtension),
             userExtension.getOrganizationId(),
-            RoutingKeys.IAM_PASSWORD_AUDIT);
+            AuditEvents.USER_EXTENSION);
 
     auditTemplate.execute(
         context,
         () -> {
-          keycloakUserService.resetPassword(userExtension.getKeycloakUserId(), newPassword, false);
+          keycloakUserAdapter.resetPassword(userExtension.getKeycloakUserId(), newPassword, false);
           tokenService.consumeToken(tokenHash);
         });
 
@@ -160,15 +156,15 @@ public class VerificationService {
         new AuditContext(
             userExtension.getId(),
             ENTITY_TYPE,
-            EventTypes.IAM.PHONE_VERIFICATION_COMPLETED,
+            DomainEvents.UserExtension.PHONE_VERIFIED,
             AuditMetadataBuilder.forUserExtension(userExtension),
             userExtension.getOrganizationId(),
-            RoutingKeys.IAM_PHONE_AUDIT);
+            AuditEvents.USER_EXTENSION);
 
     auditTemplate.execute(
         context,
         () -> {
-          keycloakUserService.verifyPhone(userExtension.getKeycloakUserId());
+          keycloakUserAdapter.verifyPhone(userExtension.getKeycloakUserId());
           tokenService.consumeToken(tokenHash);
           userExtensionService.verifyPhone(userExtension);
         });
@@ -224,43 +220,21 @@ public class VerificationService {
 
   private void dispatchNotification(
       UserExtension userExtension, NotificationType notificationType) {
-    if (notificationType == NotificationType.PASSWORD_RESET) {
-      notificationService.sendPasswordReset(userExtension.getOrganizationId(), userExtension);
-      return;
-    }
-
-    Membership membership = findMembershipOrThrow(userExtension);
-    String organizationId = membership.getOrganizationId();
-    String organizationName = membership.getOrganizationName();
+    String organizationId = userExtension.getOrganizationId();
 
     switch (notificationType) {
       case ACCOUNT_ACTIVATION ->
-          notificationService.sendAccountVerification(
-              organizationId, organizationName, userExtension);
-      case EMAIL_OTP ->
-          notificationService.sendEmailVerification(
-              organizationId, organizationName, userExtension);
-      case PHONE_OTP ->
-          notificationService.sendPhoneVerification(
-              organizationId, organizationName, userExtension);
+          notificationService.sendAccountVerification(organizationId, userExtension);
+      case EMAIL_OTP -> notificationService.sendEmailVerification(organizationId, userExtension);
+      case PHONE_OTP -> notificationService.sendPhoneVerification(organizationId, userExtension);
+      case PASSWORD_RESET -> notificationService.sendPasswordReset(organizationId, userExtension);
       default ->
           throw new IllegalStateException("Unhandled notification type: " + notificationType);
     }
   }
 
-  private Membership findMembershipOrThrow(UserExtension userExtension) {
-    return membershipService
-        .findMembershipInScope(
-            null, userExtension.getKeycloakUserId(), userExtension.getOrganizationId())
-        .orElseThrow(
-            () ->
-                new ResourceNotFoundException(
-                    ResponseCode.RESOURCE_NOT_FOUND,
-                    "No organization-level membership found for user"));
-  }
-
   private void processVerificationRequest(
-      UserExtension userExtension, VerificationRequestConfig config) {
+      UserExtension userExtension, VerificationRequestConfiguration config) {
     if (config.enforceActiveStatus()) {
       validateUserIsActive(userExtension);
     }
@@ -294,7 +268,7 @@ public class VerificationService {
     PHONE_OTP
   }
 
-  private record VerificationRequestConfig(
+  private record VerificationRequestConfiguration(
       NotificationType notificationType,
       String rateLimitKey,
       boolean enforceActiveStatus,

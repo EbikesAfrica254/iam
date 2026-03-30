@@ -16,9 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ebikes.iam.configurations.properties.ContactProperties;
-import com.ebikes.iam.constants.EventConstants;
-import com.ebikes.iam.constants.EventConstants.EventTypes;
+import com.ebikes.iam.constants.EventConstants.AuditEvents;
+import com.ebikes.iam.constants.EventConstants.DomainEvents;
 import com.ebikes.iam.constants.EventConstants.RoutingKeys;
+import com.ebikes.iam.constants.EventConstants.Source;
 import com.ebikes.iam.database.entities.Contact;
 import com.ebikes.iam.database.entities.UserExtension;
 import com.ebikes.iam.database.repositories.ContactRepository;
@@ -68,10 +69,10 @@ public class ContactService {
         new AuditContext(
             contactId,
             ENTITY_TYPE,
-            EventTypes.IAM.CONTACT_CLAIMED,
+            DomainEvents.Contact.CLAIMED,
             AuditMetadataBuilder.forContact(contact),
             contact.getOrganizationId(),
-            RoutingKeys.IAM_CONTACT_CONFIGURATION);
+            AuditEvents.CONTACT);
 
     auditTemplate.execute(
         context,
@@ -151,11 +152,10 @@ public class ContactService {
         staleIds.size(),
         toInsert.size());
 
+    ContactsResolvedEvent contactsResolvedEvent =
+        new ContactsResolvedEvent(event.documentId(), responseMap, Source.serviceReference());
     outboxService.save(
-        EventTypes.IAM.CONTACT_CREATED,
-        new ContactsResolvedEvent(
-            event.documentId(), responseMap, EventConstants.EventSource.serviceReference()),
-        RoutingKeys.IAM_CONTACT_CONFIGURATION);
+        DomainEvents.Contact.CREATED, contactsResolvedEvent, RoutingKeys.IAM_CONTACT_CONFIGURATION);
   }
 
   @Transactional(readOnly = true)
