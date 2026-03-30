@@ -2,11 +2,10 @@ package com.ebikes.iam.publishers;
 
 import org.springframework.stereotype.Component;
 
-import com.ebikes.iam.constants.EventConstants.EventSource;
-import com.ebikes.iam.constants.EventConstants.EventTypes;
+import com.ebikes.iam.constants.EventConstants.DomainEvents;
 import com.ebikes.iam.constants.EventConstants.RoutingKeys;
 import com.ebikes.iam.database.entities.UserExtension;
-import com.ebikes.iam.dtos.events.outgoing.UserProvisionedEvent;
+import com.ebikes.iam.dtos.events.outgoing.UserConfigurationRequestedEvent;
 import com.ebikes.iam.services.events.OutboxService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,16 +18,13 @@ public class UserConfigurationEventPublisher {
 
   private final OutboxService outboxService;
 
-  public void publishUserProvisioned(
-      UserExtension userExtension, String organizationId, String branchId) {
-    UserProvisionedEvent event =
-        new UserProvisionedEvent(
+  public void publishRequest(UserExtension userExtension, String organizationId) {
+    UserConfigurationRequestedEvent event =
+        new UserConfigurationRequestedEvent(
+            DomainEvents.Configuration.REQUESTED,
             userExtension.getKeycloakUserId(),
             organizationId,
-            branchId,
-            userExtension.getEmail(),
-            EventTypes.IAM.USER_PROVISIONED,
-            EventSource.serviceReference(),
+            null,
             null);
 
     outboxService.save(event.eventType(), event, RoutingKeys.IAM_USER_CONFIGURATION);

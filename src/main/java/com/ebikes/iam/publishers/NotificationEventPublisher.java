@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.ebikes.iam.configurations.properties.NotificationProperties;
 import com.ebikes.iam.constants.EventConstants.RoutingKeys;
-import com.ebikes.iam.dtos.events.outgoing.NotificationRequest;
+import com.ebikes.iam.dtos.events.outgoing.NotificationRequestEvent;
 import com.ebikes.iam.enums.ChannelType;
 import com.ebikes.iam.services.events.OutboxService;
 
@@ -19,7 +19,7 @@ public class NotificationEventPublisher {
   private final OutboxService outboxService;
   private final NotificationProperties notificationProperties;
 
-  public void publish(NotificationRequest request) {
+  public void publish(NotificationRequestEvent request) {
     String routingKey = resolveRoutingKey(request.channel());
     if (notificationProperties.isEnabled()) {
       outboxService.save(request.eventType(), request, routingKey);
