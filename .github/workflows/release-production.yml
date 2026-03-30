@@ -77,7 +77,7 @@ jobs:
       - name: Download JAR layers
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
-          name: jar-layers-${{ github.sha }}
+          name: docker-build-context-${{ github.sha }}
           run-id: ${{ steps.ci-run.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: extracted/
@@ -177,7 +177,7 @@ jobs:
               --instance-ids "${INSTANCE_ID}" \
               --document-name "AWS-RunShellScript" \
               --comment "Deploy iam sha-${SHORT_SHA}" \
-              --parameters commands="/usr/local/bin/ebikes-deploy-backend deploy iam ${DEPLOYMENT_REFERENCE}" \
+              --parameters commands="/usr/local/bin/ebikes-deploy-service deploy iam ${DEPLOYMENT_REFERENCE}" \
               --query 'Command.CommandId' \
               --output text
           )"
