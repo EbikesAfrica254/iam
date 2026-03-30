@@ -81,10 +81,6 @@ public final class SecurityFixtures {
         jwt(userId, activeOrganization, activeBranch, groups, realmAccess));
   }
 
-  public static JwtAuthenticationToken authentication(UserRole... roles) {
-    return new JwtAuthenticationToken(jwt(roles));
-  }
-
   public static JwtRequestPostProcessor authenticatedJwt() {
     return authenticatedJwt(UserRole.ORGANIZATION_ADMIN);
   }
