@@ -11,14 +11,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ebikes.iam.database.entities.Membership;
 import com.ebikes.iam.dtos.requests.context.SwitchContextRequest;
 import com.ebikes.iam.dtos.responses.api.SuccessResponse;
 import com.ebikes.iam.dtos.responses.context.ContextResponse;
 import com.ebikes.iam.dtos.responses.memberships.MembershipResponse;
-import com.ebikes.iam.mappers.MembershipMapper;
-import com.ebikes.iam.services.users.ContextService;
-import com.ebikes.iam.support.context.ExecutionContext;
+import com.ebikes.iam.services.users.context.ContextService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,44 +25,21 @@ import lombok.RequiredArgsConstructor;
 public class ContextController {
 
   private final ContextService contextService;
-  private final MembershipMapper membershipMapper;
 
   @GetMapping("/available")
   public ResponseEntity<SuccessResponse<List<MembershipResponse>>> getAvailableContexts() {
-    String keycloakUserId = ExecutionContext.getUserId();
-
-    List<MembershipResponse> response =
-        contextService.getSwitchableMemberships(keycloakUserId).stream()
-            .map(membershipMapper::toResponse)
-            .toList();
-
-    return ResponseEntity.ok(SuccessResponse.of(response));
+    return ResponseEntity.ok(SuccessResponse.of(contextService.getSwitchableMemberships()));
   }
 
   @GetMapping("/current")
   public ResponseEntity<SuccessResponse<ContextResponse>> getCurrentContext() {
-    String keycloakUserId = ExecutionContext.getUserId();
-    String activeOrganizationId = ExecutionContext.getActiveOrganization();
-    String activeBranchId = ExecutionContext.getActiveBranch();
-
-    Membership membership =
-        contextService.getActiveMembership(activeBranchId, keycloakUserId, activeOrganizationId);
-
-    ContextResponse response =
-        new ContextResponse(activeOrganizationId, activeBranchId, membership.getRoles());
-
-    return ResponseEntity.ok(SuccessResponse.of(response));
+    return ResponseEntity.ok(SuccessResponse.of(contextService.getCurrentContext()));
   }
 
   @PostMapping("/switch")
   public ResponseEntity<SuccessResponse<Void>> switchContext(
       @Valid @RequestBody SwitchContextRequest request) {
-
-    String keycloakUserId = ExecutionContext.getUserId();
-
-    contextService.switchActiveMembership(
-        request.branchId(), keycloakUserId, request.organizationId());
-
+    contextService.switchActiveMembership(request.branchId(), request.organizationId());
     return ResponseEntity.ok(
         SuccessResponse.of(
             null,

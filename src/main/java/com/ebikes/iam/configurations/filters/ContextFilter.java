@@ -17,7 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.ebikes.iam.constants.ApplicationConstants;
@@ -29,7 +28,6 @@ import com.ebikes.iam.support.web.IpAddressUtilities;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-@Component
 @Slf4j
 public class ContextFilter extends OncePerRequestFilter {
 
@@ -83,11 +81,14 @@ public class ContextFilter extends OncePerRequestFilter {
               groups,
               request.getRequestURI());
         } else {
+          ExecutionContext.setSystem();
           log.warn(
               "JWT missing sub claim: path={}, subject={}",
               request.getRequestURI(),
               token.getSubject());
         }
+      } else {
+        ExecutionContext.setSystem();
       }
 
       filterChain.doFilter(request, response);

@@ -2,8 +2,8 @@ package com.ebikes.iam.support.events;
 
 import org.springframework.messaging.Message;
 
-import com.ebikes.iam.constants.EventConstants.EventSource;
-import com.ebikes.iam.constants.EventConstants.MessageHeaders;
+import com.ebikes.iam.constants.ApplicationConstants.MessageHeaders;
+import com.ebikes.iam.constants.EventConstants.Source;
 import com.ebikes.iam.support.context.EventContext;
 import com.ebikes.iam.support.context.ExecutionContext;
 
@@ -23,7 +23,7 @@ public class EventContextDecorator {
           extractHeader(message, MessageHeaders.OUTBOX_ID),
           extractHeader(message, MessageHeaders.EVENT_TYPE),
           extractHeader(message, MessageHeaders.ROUTING_KEY),
-          EventSource.HOST_SERVICE);
+          Source.IAM);
 
       handler.run();
 

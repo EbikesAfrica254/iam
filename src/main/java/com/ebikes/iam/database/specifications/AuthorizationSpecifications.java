@@ -11,6 +11,7 @@ import com.ebikes.iam.enums.ResponseCode;
 import com.ebikes.iam.enums.UserRole;
 import com.ebikes.iam.exceptions.AuthorizationException;
 import com.ebikes.iam.support.context.ExecutionContext;
+import com.ebikes.iam.support.security.RBACUtilities;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,15 +22,18 @@ public class AuthorizationSpecifications {
   private static final String FIELD_KEYCLOAK_USER_ID = "keycloakUserId";
   private static final String FIELD_ORGANIZATION_ID = "organizationId";
 
-  private AuthorizationSpecifications() {
-    // prevent instantiation
-  }
+  private AuthorizationSpecifications() {}
 
   public static Specification<Contact> forContacts() {
-    Set<String> roles = ExecutionContext.getRoles();
-    Optional<Specification<Contact>> upperTier = resolveUpperTierFilter(roles);
-    if (upperTier.isPresent()) {
-      return upperTier.get();
+    if (!(ExecutionContext.get() instanceof ExecutionContext.UserContext ctx)) {
+      throw new AuthorizationException(
+          ResponseCode.FORBIDDEN, "Contacts are not accessible in system context");
+    }
+    Set<UserRole> roles = RBACUtilities.parseRoles(ctx.roles());
+    Optional<Specification<Contact>> spec = resolveUpperTiers(roles, ctx);
+
+    if (spec.isPresent()) {
+      return spec.get();
     }
 
     log.error("Insufficient role for contact access: roles={}", roles);
@@ -39,73 +43,70 @@ public class AuthorizationSpecifications {
   }
 
   public static Specification<UserExtension> forUserExtensions() {
-    return applyOrganizationScopedFilter();
+    if (!(ExecutionContext.get() instanceof ExecutionContext.UserContext ctx)) {
+      throw new AuthorizationException(
+          ResponseCode.FORBIDDEN, "User extensions are not accessible in system context");
+    }
+    Set<UserRole> roles = RBACUtilities.parseRoles(ctx.roles());
+    Optional<Specification<UserExtension>> spec = resolveUpperTiers(roles, ctx);
+
+    if (spec.isPresent()) {
+      return spec.get();
+    }
+
+    log.debug(
+        "USER-level access: filtering by organizationId={}, keycloakUserId={}",
+        ctx.activeOrganization(),
+        ctx.userId());
+    return Specification.allOf(
+        filterByOrganizationId(validateActiveOrganization(ctx)),
+        filterByKeycloakUserId(ctx.userId()));
   }
 
-  private static <T> Specification<T> applyOrganizationScopedFilter() {
-    Set<String> roles = ExecutionContext.getRoles();
+  private static <T> Optional<Specification<T>> resolveUpperTiers(
+      Set<UserRole> roles, ExecutionContext.UserContext ctx) {
 
-    Optional<Specification<T>> upperTier = resolveUpperTierFilter(roles);
-    if (upperTier.isPresent()) {
-      return upperTier.get();
-    }
-
-    String activeOrganization = validateActiveOrganization();
-
-    if (hasAnyRole(
-        roles,
-        UserRole.BRANCH_ADMIN,
-        UserRole.BRANCH_CHECKER,
-        UserRole.BRANCH_FLEET_MANAGER,
-        UserRole.BRANCH_FLEET_SUPPORT,
-        UserRole.BRANCH_INVENTORY_MANAGER,
-        UserRole.BRANCH_MAKER,
-        UserRole.BRANCH_OPERATOR)) {
-      String activeBranch = validateActiveBranch();
-      log.debug(
-          "BRANCH-level access: filtering by organizationId={}, branchId={}",
-          activeOrganization,
-          activeBranch);
-      return Specification.allOf(
-          filterByOrganizationId(activeOrganization), filterByBranchId(activeBranch));
-    }
-
-    if (hasAnyRole(roles, UserRole.AGENT, UserRole.CUSTOMER)) {
-      String userId = validateUserId();
-      log.debug(
-          "USER-level access: filtering by organizationId={}, userId={}",
-          activeOrganization,
-          userId);
-      return Specification.allOf(
-          filterByOrganizationId(activeOrganization), filterByKeycloakUserId(userId));
-    }
-
-    log.error("No applicable role found for user with roles: {}", roles);
-    throw new AuthorizationException(
-        ResponseCode.FORBIDDEN, "Insufficient permissions for this operation");
-  }
-
-  private static <T> Optional<Specification<T>> resolveUpperTierFilter(Set<String> roles) {
-    if (hasAnyRole(roles, UserRole.SYSTEM_ADMIN)) {
-      log.debug("SYSTEM_ADMIN access: returning all records without filtering");
+    if (roles.contains(UserRole.SYSTEM_ADMIN)) {
+      log.debug("SYSTEM_ADMIN access: no filter applied");
       return Optional.of(noFilter());
     }
 
-    String activeOrganization = validateActiveOrganization();
+    if (roles.stream().anyMatch(RBACUtilities::isOrganizationRole)) {
+      String organization = validateActiveOrganization(ctx);
+      log.debug("ORGANIZATION-level access: filtering by organizationId={}", organization);
+      return Optional.of(filterByOrganizationId(organization));
+    }
 
-    if (hasAnyRole(
-        roles,
-        UserRole.ORGANIZATION_ADMIN,
-        UserRole.ORGANIZATION_CHECKER,
-        UserRole.ORGANIZATION_FLEET_MANAGER,
-        UserRole.ORGANIZATION_FLEET_SUPPORT,
-        UserRole.ORGANIZATION_INVENTORY_MANAGER,
-        UserRole.ORGANIZATION_OPERATOR)) {
-      log.debug("ORGANIZATION-level access: filtering by organizationId={}", activeOrganization);
-      return Optional.of(filterByOrganizationId(activeOrganization));
+    if (roles.stream().anyMatch(r -> RBACUtilities.isBranchRole(r) && r != UserRole.AGENT)) {
+      String organization = validateActiveOrganization(ctx);
+      String branch = validateActiveBranch(ctx);
+      log.debug(
+          "BRANCH-level access: filtering by organizationId={}, branchId={}", organization, branch);
+      return Optional.of(
+          Specification.allOf(filterByOrganizationId(organization), filterByBranchId(branch)));
     }
 
     return Optional.empty();
+  }
+
+  private static String validateActiveBranch(ExecutionContext.UserContext ctx) {
+    String branch = ctx.activeBranch();
+    if (branch == null || branch.isBlank()) {
+      log.error("Missing active_branch claim");
+      throw new AuthorizationException(
+          ResponseCode.FORBIDDEN, "Active branch context required for this operation");
+    }
+    return branch;
+  }
+
+  private static String validateActiveOrganization(ExecutionContext.UserContext ctx) {
+    String organization = ctx.activeOrganization();
+    if (organization == null || organization.isBlank()) {
+      log.error("Missing active_organization claim");
+      throw new AuthorizationException(
+          ResponseCode.FORBIDDEN, "Active organization context required for this operation");
+    }
+    return organization;
   }
 
   private static <T> Specification<T> filterByBranchId(String branchId) {
@@ -122,44 +123,5 @@ public class AuthorizationSpecifications {
 
   private static <T> Specification<T> noFilter() {
     return (root, query, cb) -> cb.conjunction();
-  }
-
-  private static boolean hasAnyRole(Set<String> roles, UserRole... candidates) {
-    for (UserRole candidate : candidates) {
-      if (roles.contains(candidate.name())) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static String validateActiveBranch() {
-    String activeBranch = ExecutionContext.getActiveBranch();
-    if (activeBranch == null || activeBranch.isBlank()) {
-      log.error("Missing active_branch claim");
-      throw new AuthorizationException(
-          ResponseCode.FORBIDDEN, "Active branch context required for this operation");
-    }
-    return activeBranch;
-  }
-
-  private static String validateActiveOrganization() {
-    String activeOrganization = ExecutionContext.getActiveOrganization();
-    if (activeOrganization == null || activeOrganization.isBlank()) {
-      log.error("Missing active_organization claim");
-      throw new AuthorizationException(
-          ResponseCode.FORBIDDEN, "Active organization context required for this operation");
-    }
-    return activeOrganization;
-  }
-
-  private static String validateUserId() {
-    String userId = ExecutionContext.getUserId();
-    if (userId == null || userId.isBlank()) {
-      log.error("Missing user_id claim for user-level access");
-      throw new AuthorizationException(
-          ResponseCode.FORBIDDEN, "User identity required for this operation");
-    }
-    return userId;
   }
 }
