@@ -30,6 +30,15 @@ public final class ApplicationConstants {
     }
   }
 
+  public static final class MessageHeaders {
+
+    private MessageHeaders() {}
+
+    public static final String EVENT_TYPE = "eventType";
+    public static final String OUTBOX_ID = "outboxId";
+    public static final String ROUTING_KEY = "routingKey";
+  }
+
   public static final class Outbox {
     public static final String BINDING_NAME = "eventPublisher-out-0";
     public static final int MAX_RETRY_COUNT = 5;

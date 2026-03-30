@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Pattern;
 import com.ebikes.iam.enums.ChannelType;
 import com.ebikes.iam.enums.NotificationCategory;
 
-public record NotificationRequest(
+public record NotificationRequestEvent(
     String branchId,
     @NotNull NotificationCategory category,
     @NotNull ChannelType channel,
@@ -25,10 +25,10 @@ public record NotificationRequest(
             message = "Template name must be SCREAMING_SNAKE_CASE")
         String templateName,
     Instant timestamp,
-    Map<String, Serializable> variables)
+    Map<String, Object> variables)
     implements Serializable {
 
-  public NotificationRequest {
+  public NotificationRequestEvent {
     timestamp = timestamp != null ? timestamp : Instant.now();
     variables = variables != null ? Map.copyOf(variables) : Map.of();
   }
