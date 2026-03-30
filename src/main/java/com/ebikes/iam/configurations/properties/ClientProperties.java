@@ -2,27 +2,29 @@ package com.ebikes.iam.configurations.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.annotation.Validated;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@ConfigurationProperties(prefix = "web-client")
 @Component
-@Data
-@Validated
-public class WebClientProperties {
+@ConfigurationProperties(prefix = "clients.client")
+@Getter
+@Setter
+public class ClientProperties {
+
   private String baseUrl;
-  private String support;
   private VerificationConfiguration verification;
 
-  @Data
+  @Getter
+  @Setter
   public static class VerificationConfiguration {
+    private ChannelConfiguration accountActivation;
     private ChannelConfiguration email;
     private ChannelConfiguration passwordReset;
-    private ChannelConfiguration phone;
   }
 
-  @Data
+  @Getter
+  @Setter
   public static class ChannelConfiguration {
     private String path;
   }
