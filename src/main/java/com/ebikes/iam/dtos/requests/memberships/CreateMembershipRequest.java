@@ -11,10 +11,8 @@ import com.ebikes.iam.enums.UserRole;
 
 public record CreateMembershipRequest(
     String branchId,
-    String branchName,
     @NotNull Boolean isPrimary,
     @NotBlank String organizationId,
-    @NotBlank String organizationName,
     @NotEmpty Set<UserRole> roles)
     implements Serializable {
 

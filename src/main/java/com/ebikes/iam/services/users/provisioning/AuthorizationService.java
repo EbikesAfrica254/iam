@@ -1,4 +1,4 @@
-package com.ebikes.iam.services.users;
+package com.ebikes.iam.services.users.provisioning;
 
 import static com.ebikes.iam.support.security.RBACUtilities.getRequiredAuthorityToCreate;
 
@@ -7,12 +7,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.ebikes.iam.database.entities.Membership;
 import com.ebikes.iam.enums.ResponseCode;
 import com.ebikes.iam.enums.UserRole;
 import com.ebikes.iam.exceptions.AuthorizationException;
+import com.ebikes.iam.services.users.membership.MembershipService;
 import com.ebikes.iam.support.context.ExecutionContext;
 import com.ebikes.iam.support.security.RBACUtilities;
 
@@ -22,35 +22,22 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class UserCreationAuthorizationService {
+public class AuthorizationService {
 
   private final MembershipService membershipService;
 
-  /**
-   * Validates that the requesting user has enough authority to create a user with the given roles
-   * in the target organization and branch.
-   *
-   * <p>Branch context is read from {@link ExecutionContext#getActiveBranch()}, which is populated
-   * by the incoming HTTP request. This method must not be called from async or batch contexts where
-   * the request-scoped state is unavailable.
-   *
-   * @param creatorUserId        Keycloak user ID of the creator
-   * @param targetBranchId       branch the new user will be assigned to, or null for org-level
-   * @param targetOrganizationId organization in which the user is being created
-   * @param targetRoles          roles to be assigned to the new user
-   */
-  @Transactional(readOnly = true)
   public void authorize(
-      String creatorUserId,
-      String targetBranchId,
-      String targetOrganizationId,
-      Set<UserRole> targetRoles) {
+      String targetBranchId, String targetOrganizationId, Set<UserRole> targetRoles) {
 
-    String creatorBranchId = ExecutionContext.getActiveBranch();
+    if (!(ExecutionContext.get() instanceof ExecutionContext.UserContext ctx)) {
+      return;
+    }
+
+    String creatorBranchId = ctx.activeBranch();
 
     Membership creatorMembership =
         membershipService
-            .findMembershipInScope(creatorBranchId, creatorUserId, targetOrganizationId)
+            .findMembershipInScope(creatorBranchId, ctx.userId(), targetOrganizationId)
             .orElseThrow(
                 () ->
                     new AuthorizationException(

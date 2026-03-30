@@ -17,13 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ebikes.iam.database.entities.Membership;
 import com.ebikes.iam.dtos.requests.memberships.CreateMembershipRequest;
 import com.ebikes.iam.dtos.requests.memberships.UpdateMembershipRolesRequest;
 import com.ebikes.iam.dtos.responses.api.SuccessResponse;
 import com.ebikes.iam.dtos.responses.memberships.MembershipResponse;
-import com.ebikes.iam.mappers.MembershipMapper;
-import com.ebikes.iam.services.users.MembershipService;
+import com.ebikes.iam.services.users.membership.MembershipService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,31 +30,25 @@ import lombok.RequiredArgsConstructor;
 @RestController
 public class MembershipController {
 
-  private final MembershipMapper membershipMapper;
   private final MembershipService membershipService;
 
   @PostMapping
   public ResponseEntity<SuccessResponse<MembershipResponse>> create(
       @PathVariable String keycloakUserId, @Valid @RequestBody CreateMembershipRequest request) {
 
-    Membership membership = membershipService.create(keycloakUserId, request);
-
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
             SuccessResponse.of(
-                membershipMapper.toResponse(membership), "Membership created successfully"));
+                membershipService.create(keycloakUserId, request),
+                "Membership created successfully"));
   }
 
   @GetMapping
   public ResponseEntity<SuccessResponse<List<MembershipResponse>>> list(
       @PathVariable String keycloakUserId) {
 
-    List<MembershipResponse> response =
-        membershipService.findMembershipsByKeycloakUserId(keycloakUserId).stream()
-            .map(membershipMapper::toResponse)
-            .toList();
-
-    return ResponseEntity.ok(SuccessResponse.of(response));
+    return ResponseEntity.ok(
+        SuccessResponse.of(membershipService.findMembershipsByKeycloakUserId(keycloakUserId)));
   }
 
   @DeleteMapping
@@ -75,7 +67,7 @@ public class MembershipController {
 
     membershipService.removeUserFromOrganization(keycloakUserId, organizationId);
     return ResponseEntity.ok(
-        SuccessResponse.of(null, "User removed from organization successfully"));
+        SuccessResponse.of(null, "User removed from organizations successfully"));
   }
 
   @PutMapping("/primary")

@@ -13,8 +13,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ebikes.iam.constants.EventConstants.EventTypes;
-import com.ebikes.iam.constants.EventConstants.RoutingKeys;
+import com.ebikes.iam.adapters.keycloak.KeycloakUserAdapter;
+import com.ebikes.iam.constants.EventConstants.AuditEvents;
+import com.ebikes.iam.constants.EventConstants.DomainEvents;
 import com.ebikes.iam.database.entities.Membership;
 import com.ebikes.iam.database.entities.UserExtension;
 import com.ebikes.iam.database.repositories.UserExtensionRepository;
@@ -30,7 +31,7 @@ import com.ebikes.iam.enums.UserStatus;
 import com.ebikes.iam.exceptions.ResourceNotFoundException;
 import com.ebikes.iam.exceptions.ValidationException;
 import com.ebikes.iam.mappers.UserExtensionMapper;
-import com.ebikes.iam.services.keycloak.users.KeycloakUserService;
+import com.ebikes.iam.services.notifications.NotificationService;
 import com.ebikes.iam.support.audit.AuditContext;
 import com.ebikes.iam.support.audit.AuditMetadataBuilder;
 import com.ebikes.iam.support.audit.AuditTemplate;
@@ -49,7 +50,8 @@ public class UserExtensionService {
   private static final String USER_EXTENSION = "USER_EXTENSION";
 
   private final AuditTemplate auditTemplate;
-  private final KeycloakUserService keycloakUserService;
+  private final KeycloakUserAdapter keycloakUserAdapter;
+  private final NotificationService notificationService;
   private final UserExtensionMapper mapper;
   private final UserExtensionRepository repository;
 
@@ -62,21 +64,40 @@ public class UserExtensionService {
   @Transactional
   public UserExtension create(
       String keycloakUserId, String organizationId, CreateUserRequest request) {
-    UserExtension userExtension =
-        UserExtension.builder()
-            .branchId(request.branchId())
-            .countryCode(request.countryCode())
-            .email(request.email())
-            .firstName(request.firstName())
-            .keycloakUserId(keycloakUserId)
-            .lastName(request.lastName())
-            .organizationId(organizationId)
-            .phoneNumber(request.phoneNumber())
-            .status(UserStatus.INACTIVE)
-            .username(request.username())
-            .build();
 
-    userExtension = repository.save(userExtension);
+    AuditContext auditContext =
+        new AuditContext(
+            null,
+            USER_EXTENSION,
+            DomainEvents.UserExtension.CREATED,
+            null,
+            organizationId,
+            AuditEvents.USER_EXTENSION);
+
+    UserExtension userExtension =
+        auditTemplate.execute(
+            auditContext,
+            () -> {
+              UserExtension extension =
+                  repository.save(
+                      UserExtension.builder()
+                          .branchId(request.branchId())
+                          .countryCode(request.countryCode())
+                          .email(request.email())
+                          .firstName(request.firstName())
+                          .keycloakUserId(keycloakUserId)
+                          .lastName(request.lastName())
+                          .organizationId(organizationId)
+                          .phoneNumber(request.phoneNumber())
+                          .status(UserStatus.INACTIVE)
+                          .username(request.username())
+                          .build());
+
+              notificationService.sendAccountVerification(organizationId, extension);
+
+              return extension;
+            },
+            UserExtension::getId);
 
     log.info(
         "User extension created: userId={}, keycloakUserId={}",
@@ -94,15 +115,15 @@ public class UserExtensionService {
         new AuditContext(
             userExtension.getId(),
             USER_EXTENSION,
-            EventTypes.IAM.ACCOUNT_DELETED,
+            DomainEvents.UserExtension.DELETED,
             AuditMetadataBuilder.forUserExtension(userExtension),
             userExtension.getOrganizationId(),
-            RoutingKeys.IAM_ACCOUNT_AUDIT);
+            AuditEvents.USER_EXTENSION);
 
     auditTemplate.execute(
         context,
         () -> {
-          keycloakUserService.disableUser(userExtension.getKeycloakUserId());
+          keycloakUserAdapter.disableUser(userExtension.getKeycloakUserId());
           userExtension.delete();
           repository.save(userExtension);
         });
@@ -119,15 +140,15 @@ public class UserExtensionService {
         new AuditContext(
             userExtension.getId(),
             USER_EXTENSION,
-            EventTypes.IAM.USER_DEPROVISIONED,
+            DomainEvents.UserExtension.DEPROVISIONED,
             AuditMetadataBuilder.forUserExtension(userExtension),
             userExtension.getOrganizationId(),
-            RoutingKeys.IAM_USER_AUDIT);
+            AuditEvents.USER_EXTENSION);
 
     auditTemplate.execute(
         context,
         () -> {
-          keycloakUserService.deleteUser(keycloakUserId);
+          keycloakUserAdapter.deleteUser(keycloakUserId);
           userExtension.delete();
           repository.save(userExtension);
         });
@@ -139,10 +160,16 @@ public class UserExtensionService {
   @Transactional(readOnly = true)
   public UserExtensionDetailResponse findById(UUID id) {
     UserExtension userExtension = findUserExtensionById(id);
-    if (userExtension.isDeleted()
-        && !RBACUtilities.hasAdminRoleFromNames(ExecutionContext.getRoles())) {
-      throw new ResourceNotFoundException(
-          ResponseCode.RESOURCE_NOT_FOUND, "User with ID '" + id + "' does not exist");
+    if (userExtension.isDeleted()) {
+      boolean canViewDeleted =
+          switch (ExecutionContext.get()) {
+            case ExecutionContext.UserContext uc -> RBACUtilities.hasAdminRoleFromNames(uc.roles());
+            case ExecutionContext.SystemContext ignored -> true;
+          };
+      if (!canViewDeleted) {
+        throw new ResourceNotFoundException(
+            ResponseCode.RESOURCE_NOT_FOUND, "User with ID '" + id + "' does not exist");
+      }
     }
 
     return mapper.toDetailResponse(userExtension);
@@ -169,22 +196,21 @@ public class UserExtensionService {
     return repository.findByPhoneNumber(phoneNumber);
   }
 
-  @Transactional(readOnly = true)
   public UserProfileResponse me() {
-    String keycloakUserId = ExecutionContext.getUserId();
-    String activeOrganizationId = ExecutionContext.getActiveOrganization();
+    if (!(ExecutionContext.get() instanceof ExecutionContext.UserContext ctx)) {
+      throw new IllegalStateException("me() called outside of user context");
+    }
 
     UserExtension user =
         repository
-            .findByKeycloakUserIdWithMemberships(keycloakUserId)
+            .findByKeycloakUserIdWithMemberships(ctx.userId())
             .orElseThrow(
                 () ->
                     new ResourceNotFoundException(
                         ResponseCode.RESOURCE_NOT_FOUND, "User not found"));
 
     Membership activeMembership =
-        findActiveMembership(
-                user.getMemberships(), activeOrganizationId, ExecutionContext.getActiveBranch())
+        findActiveMembership(user.getMemberships(), ctx.activeOrganization(), ctx.activeBranch())
             .orElseThrow(() -> new IllegalStateException("No active membership found for user"));
 
     return mapper.toProfileResponse(user, activeMembership, List.copyOf(user.getMemberships()));
@@ -203,10 +229,10 @@ public class UserExtensionService {
         new AuditContext(
             userExtension.getId(),
             USER_EXTENSION,
-            EventTypes.IAM.ACCOUNT_RESTORED,
+            DomainEvents.UserExtension.RESTORED,
             AuditMetadataBuilder.forUserExtension(userExtension),
             userExtension.getOrganizationId(),
-            RoutingKeys.IAM_ACCOUNT_AUDIT);
+            AuditEvents.USER_EXTENSION);
 
     auditTemplate.execute(
         context,
@@ -234,16 +260,16 @@ public class UserExtensionService {
         new AuditContext(
             userExtension.getId(),
             USER_EXTENSION,
-            EventTypes.IAM.ACCOUNT_UPDATED,
+            DomainEvents.UserExtension.UPDATED,
             AuditMetadataBuilder.forUserExtension(userExtension),
             userExtension.getOrganizationId(),
-            RoutingKeys.IAM_ACCOUNT_AUDIT);
+            AuditEvents.USER_EXTENSION);
 
     UserExtensionDetailResponse response =
         auditTemplate.execute(
             context,
             () -> {
-              keycloakUserService.updateUser(userExtension.getKeycloakUserId(), request);
+              keycloakUserAdapter.updateUser(userExtension.getKeycloakUserId(), request);
               userExtension.update(request);
               return mapper.toDetailResponse(repository.save(userExtension));
             });
@@ -262,11 +288,11 @@ public class UserExtensionService {
         new AuditContext(
             userExtension.getId(),
             USER_EXTENSION,
-            EventTypes.IAM.ACCOUNT_STATUS_CHANGED,
+            DomainEvents.UserExtension.UPDATED,
             AuditMetadataBuilder.forUserExtension(
                 userExtension, Map.of("previousStatus", oldStatus.name())),
             userExtension.getOrganizationId(),
-            RoutingKeys.IAM_ACCOUNT_AUDIT);
+            AuditEvents.USER_EXTENSION);
 
     auditTemplate.execute(
         context,

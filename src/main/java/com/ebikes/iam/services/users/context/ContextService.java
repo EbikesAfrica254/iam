@@ -1,25 +1,27 @@
-package com.ebikes.iam.services.users;
+package com.ebikes.iam.services.users.context;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.validation.constraints.NotBlank;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import com.ebikes.iam.adapters.keycloak.KeycloakUserAdapter;
 import com.ebikes.iam.constants.ApplicationConstants;
-import com.ebikes.iam.constants.EventConstants.EventTypes;
-import com.ebikes.iam.constants.EventConstants.RoutingKeys;
+import com.ebikes.iam.constants.EventConstants.AuditEvents;
+import com.ebikes.iam.constants.EventConstants.DomainEvents;
 import com.ebikes.iam.database.entities.Membership;
+import com.ebikes.iam.dtos.responses.context.ContextResponse;
+import com.ebikes.iam.dtos.responses.memberships.MembershipResponse;
 import com.ebikes.iam.enums.ResponseCode;
 import com.ebikes.iam.exceptions.ResourceNotFoundException;
-import com.ebikes.iam.services.keycloak.users.KeycloakUserService;
+import com.ebikes.iam.services.users.membership.MembershipService;
 import com.ebikes.iam.support.audit.AuditContext;
 import com.ebikes.iam.support.audit.AuditMetadataBuilder;
 import com.ebikes.iam.support.audit.AuditTemplate;
+import com.ebikes.iam.support.context.ExecutionContext;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,24 +35,33 @@ public class ContextService {
   private static final String MEMBERSHIP = "MEMBERSHIP";
 
   private final AuditTemplate auditTemplate;
-  private final KeycloakUserService keycloakUserService;
+  private final KeycloakUserAdapter keycloakUserAdapter;
   private final MembershipService membershipService;
 
   @Transactional(readOnly = true)
-  public Membership getActiveMembership(
-      String activeBranchId, @NotBlank String keycloakUserId, String activeOrganizationId) {
-    return resolveMembershipOrThrow(activeBranchId, keycloakUserId, activeOrganizationId);
+  public ContextResponse getCurrentContext() {
+    if (!(ExecutionContext.get() instanceof ExecutionContext.UserContext ctx)) {
+      throw new IllegalStateException("getCurrentContext() called outside of user context");
+    }
+    Membership membership =
+        resolveMembershipOrThrow(ctx.activeBranch(), ctx.userId(), ctx.activeOrganization());
+    return new ContextResponse(ctx.activeBranch(), ctx.activeOrganization(), membership.getRoles());
   }
 
   @Transactional(readOnly = true)
-  public List<Membership> getSwitchableMemberships(@NotBlank String keycloakUserId) {
-    return membershipService.findMembershipsByKeycloakUserId(keycloakUserId);
+  public List<MembershipResponse> getSwitchableMemberships() {
+    if (!(ExecutionContext.get() instanceof ExecutionContext.UserContext ctx)) {
+      throw new IllegalStateException("getSwitchableMemberships() called outside of user context");
+    }
+    return membershipService.findMembershipsByKeycloakUserId(ctx.userId());
   }
 
   @Transactional
-  public void switchActiveMembership(
-      String branchId, String keycloakUserId, String organizationId) {
-    Membership membership = resolveMembershipOrThrow(branchId, keycloakUserId, organizationId);
+  public void switchActiveMembership(String branchId, String organizationId) {
+    if (!(ExecutionContext.get() instanceof ExecutionContext.UserContext ctx)) {
+      throw new IllegalStateException("switchActiveMembership() called outside of user context");
+    }
+    Membership membership = resolveMembershipOrThrow(branchId, ctx.userId(), organizationId);
 
     Map<String, String> attributes = new HashMap<>();
     attributes.put(ApplicationConstants.Keycloak.ACTIVE_ORGANIZATION_ATTRIBUTE, organizationId);
@@ -66,17 +77,17 @@ public class ContextService {
         new AuditContext(
             membership.getId(),
             MEMBERSHIP,
-            EventTypes.IAM.CONTEXT_SWITCHED,
+            DomainEvents.Context.SWITCHED,
             AuditMetadataBuilder.forMembership(membership),
             organizationId,
-            RoutingKeys.IAM_CONTEXT_AUDIT);
+            AuditEvents.CONTEXT);
 
     auditTemplate.execute(
-        context, () -> keycloakUserService.updateUserAttributes(keycloakUserId, attributes));
+        context, () -> keycloakUserAdapter.updateUserAttributes(ctx.userId(), attributes));
 
     log.info(
         "User switched membership: keycloakUserId={}, organizationId={}, branchId={}, roles={}",
-        keycloakUserId,
+        ctx.userId(),
         organizationId,
         branchId != null ? branchId : "none",
         String.join(",", membership.getRoles()));
@@ -90,8 +101,8 @@ public class ContextService {
             () -> {
               String scope =
                   branchId != null
-                      ? "organization " + organizationId + " and branch " + branchId
-                      : "organization " + organizationId;
+                      ? "organizations " + organizationId + " and branch " + branchId
+                      : "organizations " + organizationId;
               return new ResourceNotFoundException(
                   ResponseCode.RESOURCE_NOT_FOUND, "User is not a member of " + scope);
             });
