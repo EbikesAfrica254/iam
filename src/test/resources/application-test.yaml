@@ -1,0 +1,195 @@
+server:
+  port: 0
+
+spring:
+  # Explicitly exclude all infrastructure autoconfiguration that requires a running
+  # external service. Slice tests (@WebMvcTest, @DataJpaTest) must never attempt
+  # to connect to Redis, RabbitMQ, or any host-local service. Each test layer
+  # provides its own infrastructure via Testcontainers or mocks — never via
+  # fallback to whatever happens to be running on the developer's machine.
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+
+  application:
+    name: ebikes-iam
+
+  cloud:
+    function:
+      definition: incomingEventConsumer
+    stream:
+      default-binder: rabbit
+      bindings:
+        incomingEventConsumer-in-0:
+          destination: ebikes.domain-events
+          group: ebikes.iam.incoming
+          consumer:
+            back-off-initial-interval: 1000
+            back-off-max-interval: 10000
+            back-off-multiplier: 2.0
+            max-attempts: 3
+        eventPublisher-out-0:
+          destination: ebikes.domain-events
+      rabbit:
+        bindings:
+          incomingEventConsumer-in-0:
+            consumer:
+              bindQueue: true
+              declareExchange: true
+              queueNameGroupOnly: true
+          eventPublisher-out-0:
+            producer:
+              declareExchange: true
+              routingKeyExpression: "headers['routingKey']"
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ""
+      repositories:
+        enabled: false
+      ssl:
+        enabled: false
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/placeholder
+    username: placeholder
+    password: placeholder
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: iam
+        format_sql: false
+        show_sql: false
+
+  liquibase:
+    change-log: classpath:database/changelog/changelog-main.yaml
+    enabled: true
+    liquibase-schema: iam
+    parameters:
+      searchPath: classpath:database/changelog/
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Placeholder values — never resolved directly from this file.
+          # AbstractControllerTest overrides these via @DynamicPropertySource
+          # once WireMock has started and its port is known.
+          # AbstractIntegrationTest overrides these via @DynamicPropertySource
+          # once the Keycloak Testcontainer has started.
+          # A test that reaches this placeholder and attempts to connect has
+          # a misconfigured base class — fail fast is the correct behaviour.
+          jwk-set-uri: http://localhost:0/realms/ebikes/protocol/openid-connect/certs
+          issuer-uri: http://localhost:0/realms/ebikes
+
+  task:
+    scheduling:
+      pool:
+        size: 2
+
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          max-age: PT1H
+
+clients:
+  client:
+    base-url: http://localhost
+    verification:
+      account-activation:
+        path: /activate
+      email:
+        path: /verify
+      password-reset:
+        path: /reset-password
+
+contact:
+  expiry-cron: 0 0 2 * * *
+  expiry-hours: 720
+  stale-threshold-hours: 168
+
+keycloak:
+  base-organization-id: 00000000-0000-0000-0000-000000000000
+  client-id: test-client
+  client-secret: test-secret
+  # group-mapping satisfies @NotEmpty — keys are role names, values are Keycloak group paths.
+  # These are never evaluated in tests that mock KeycloakGroupAdapter.
+  group-mapping:
+    CUSTOMER: /customers
+  realm: ebikes
+  # Placeholder — MockKeycloakConfig prevents this value from being passed to
+  # KeycloakBuilder. Tests using a real Keycloak container override this via
+  # @DynamicPropertySource.
+  url: http://localhost:0
+  web-client-id: test-web-client
+
+notifications:
+  enabled: false
+
+rate-limit:
+  resend:
+    max-attempts-per-ip: 3
+    max-attempts-per-user: 2
+    window-minutes: 60
+
+security:
+  public-endpoints:
+    - /actuator/health
+    - /actuator/prometheus
+    - /api-docs/**
+    - /password-reset/**
+    - /users/signup
+    - /swagger-ui/**
+    - /verification/**
+    - /verify/**
+    - /webjars/**
+  scopes:
+    - email
+    - openid
+    - profile
+
+services:
+  organizations:
+    base-url: http://localhost:0
+
+token:
+  account-activation:
+    length: 32
+    validity-hours: 24
+  email-otp:
+    length: 6
+    validity-minutes: 10
+  email-verification:
+    length: 32
+    validity-hours: 24
+  password-reset:
+    length: 32
+    validity-hours: 1
+  phone-number-verification:
+    length: 6
+    validity-minutes: 10
+  sms-otp:
+    length: 6
+    validity-minutes: 10
+  two-factor-auth:
+    length: 6
+    validity-minutes: 5
