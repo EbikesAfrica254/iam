@@ -1,4 +1,4 @@
-package com.ebikes.iam.services.security;
+package com.ebikes.iam.services.ratelimit;
 
 import java.time.Duration;
 import java.util.List;
@@ -27,7 +27,9 @@ public class RateLimitService {
       RedisScript.of(
           """
           local current = redis.call('incr', KEYS[1])
-          redis.call('expire', KEYS[1], ARGV[1])
+          if current == 1 then
+            redis.call('expire', KEYS[1], ARGV[1])
+          end
           return current
           """,
           Long.class);
