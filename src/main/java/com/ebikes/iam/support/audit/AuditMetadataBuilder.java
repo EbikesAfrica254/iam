@@ -24,9 +24,7 @@ public class AuditMetadataBuilder {
   public static Map<String, String> forMembership(Membership membership) {
     return Map.of(
         "branchId", membership.getBranchId() != null ? membership.getBranchId() : "",
-        "branchName", membership.getBranchName() != null ? membership.getBranchName() : "",
         "isPrimary", String.valueOf(membership.getIsPrimary()),
-        "organizationName", membership.getOrganizationName(),
         "roles", String.join(",", membership.getRoles()));
   }
 

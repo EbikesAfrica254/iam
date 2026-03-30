@@ -1,14 +1,10 @@
 package com.ebikes.iam.database.specifications;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
@@ -49,9 +45,7 @@ public class UserExtensionSpecifications {
           FIELD_STATUS,
           FIELD_USERNAME);
 
-  private UserExtensionSpecifications() {
-    // prevent instantiation
-  }
+  private UserExtensionSpecifications() {}
 
   public static Specification<UserExtension> buildSpecification(UserExtensionFilter filter) {
     return (root, query, criteriaBuilder) -> {
@@ -61,58 +55,58 @@ public class UserExtensionSpecifications {
           AuthorizationSpecifications.forUserExtensions()
               .toPredicate(root, query, criteriaBuilder));
 
-      addIfPresent(
+      FilterUtilities.addIfPresent(
           predicates,
           root,
           query,
           criteriaBuilder,
           filter.getBranchId(),
           hasBranchId(filter.getBranchId()));
-      addIfPresent(
+      FilterUtilities.addIfPresent(
           predicates,
           root,
           query,
           criteriaBuilder,
           filter.getCountryCode(),
           hasCountryCode(filter.getCountryCode()));
-      addIfPresent(
+      FilterUtilities.addIfPresent(
           predicates, root, query, criteriaBuilder, filter.getEmail(), hasEmail(filter.getEmail()));
-      addIfPresent(
+      FilterUtilities.addIfPresent(
           predicates,
           root,
           query,
           criteriaBuilder,
           filter.getFirstName(),
           hasFirstName(filter.getFirstName()));
-      addIfPresent(
+      FilterUtilities.addIfPresent(
           predicates,
           root,
           query,
           criteriaBuilder,
           filter.getKeycloakUserId(),
           hasKeycloakUserId(filter.getKeycloakUserId()));
-      addIfPresent(
+      FilterUtilities.addIfPresent(
           predicates,
           root,
           query,
           criteriaBuilder,
           filter.getLastName(),
           hasLastName(filter.getLastName()));
-      addIfPresent(
+      FilterUtilities.addIfPresent(
           predicates,
           root,
           query,
           criteriaBuilder,
           filter.getOrganizationId(),
           hasOrganizationId(filter.getOrganizationId()));
-      addIfPresent(
+      FilterUtilities.addIfPresent(
           predicates,
           root,
           query,
           criteriaBuilder,
           filter.getPhoneNumber(),
           hasPhoneNumber(filter.getPhoneNumber()));
-      addIfPresent(
+      FilterUtilities.addIfPresent(
           predicates,
           root,
           query,
@@ -120,13 +114,14 @@ public class UserExtensionSpecifications {
           filter.getUsername(),
           hasUsername(filter.getUsername()));
 
-      addDateRange(
+      FilterUtilities.addDateRange(
           predicates,
           root,
           query,
           criteriaBuilder,
-          filter.getCreatedDateFrom(),
-          filter.getCreatedDateTo());
+          FIELD_CREATED_AT,
+          filter.getCreatedAtFrom(),
+          filter.getCreatedAtTo());
 
       if (filter.getEmailVerified() != null) {
         predicates.add(isEmailVerified().toPredicate(root, query, criteriaBuilder));
@@ -196,31 +191,5 @@ public class UserExtensionSpecifications {
   public static Specification<UserExtension> isPhoneNumberVerified() {
     return (root, query, criteriaBuilder) ->
         criteriaBuilder.isTrue(root.get(FIELD_PHONE_NUMBER_VERIFIED));
-  }
-
-  private static void addDateRange(
-      List<Predicate> predicates,
-      Root<UserExtension> root,
-      CriteriaQuery<?> query,
-      CriteriaBuilder cb,
-      LocalDate from,
-      LocalDate to) {
-    if (from != null || to != null) {
-      Specification<UserExtension> spec =
-          FilterUtilities.dateRangeBetween(UserExtensionSpecifications.FIELD_CREATED_AT, from, to);
-      predicates.add(spec.toPredicate(root, query, cb));
-    }
-  }
-
-  private static void addIfPresent(
-      List<Predicate> predicates,
-      Root<UserExtension> root,
-      CriteriaQuery<?> query,
-      CriteriaBuilder criteriaBuilder,
-      String value,
-      Specification<UserExtension> spec) {
-    if (value != null && !value.isBlank()) {
-      predicates.add(spec.toPredicate(root, query, criteriaBuilder));
-    }
   }
 }

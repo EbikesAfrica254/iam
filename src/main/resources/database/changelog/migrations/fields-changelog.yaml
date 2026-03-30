@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 01-drop-membership-names
+      author: MH
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            path: fields/01-drop-membership-names.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 02-update-outbox-status-enum
+      author: MH
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            path: fields/02-update-outbox-status-enum.sql
+            relativeToChangelogFile: true

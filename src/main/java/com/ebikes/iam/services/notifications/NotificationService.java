@@ -1,15 +1,14 @@
 package com.ebikes.iam.services.notifications;
 
 import java.io.Serializable;
-import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.ebikes.iam.constants.EventConstants.EventSource;
+import com.ebikes.iam.constants.EventConstants.Source;
 import com.ebikes.iam.database.entities.UserExtension;
-import com.ebikes.iam.dtos.events.outgoing.NotificationRequest;
+import com.ebikes.iam.dtos.events.outgoing.NotificationRequestEvent;
 import com.ebikes.iam.dtos.internal.GeneratedToken;
 import com.ebikes.iam.enums.TokenType;
 import com.ebikes.iam.mappers.NotificationMapper;
@@ -25,29 +24,27 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NotificationService {
 
+  private static final String VERIFICATION_LINK_KEY = "verificationLink";
+
   private final NotificationEventPublisher notificationEventPublisher;
   private final NotificationMapper notificationMapper;
   private final TokenService tokenService;
   private final VerificationLinkBuilder verificationLinkBuilder;
 
-  public void sendAccountVerification(
-      String organizationId, String organizationName, UserExtension userExtension) {
+  public void sendAccountVerification(String organizationId, UserExtension userExtension) {
     GeneratedToken token =
         tokenService.generateToken(TokenType.ACCOUNT_ACTIVATION, userExtension.getId());
 
-    Map<String, Serializable> variables = baseTokenVariables(organizationId, organizationName);
-    variables.put("currentYear", String.valueOf(OffsetDateTime.now().getYear())); // String, not int
+    Map<String, Serializable> variables = baseTokenVariables(organizationId);
     variables.put("expirationTime", token.expiresAt().toString());
-    variables.put("logoUrl", "https://placehold.co/400");
-    variables.put("organizationAddress", "Nairobi, Kenya");
-    variables.put("supportUrl", "https://www.ebikes.co.ke");
     variables.put("username", userExtension.getUsername());
     variables.put(
-        "verificationLink", verificationLinkBuilder.buildEmailVerificationLink(token.plainToken()));
+        VERIFICATION_LINK_KEY,
+        verificationLinkBuilder.buildAccountActivationLink(token.plainToken()));
 
-    NotificationRequest event =
+    NotificationRequestEvent event =
         notificationMapper.toAccountVerificationRequest(
-            userExtension, Map.copyOf(variables), EventSource.serviceReference());
+            userExtension, Map.copyOf(variables), Source.serviceReference());
 
     notificationEventPublisher.publish(event);
 
@@ -58,17 +55,17 @@ public class NotificationService {
         userExtension.getId());
   }
 
-  public void sendEmailVerification(
-      String organizationId, String organizationName, UserExtension userExtension) {
+  public void sendEmailVerification(String organizationId, UserExtension userExtension) {
     GeneratedToken token = tokenService.generateToken(TokenType.EMAIL_OTP, userExtension.getId());
 
-    Map<String, Serializable> variables = baseTokenVariables(organizationId, organizationName);
+    Map<String, Serializable> variables = baseTokenVariables(organizationId);
     variables.put(
-        "verificationLink", verificationLinkBuilder.buildEmailVerificationLink(token.plainToken()));
+        VERIFICATION_LINK_KEY,
+        verificationLinkBuilder.buildEmailVerificationLink(token.plainToken()));
 
-    NotificationRequest event =
+    NotificationRequestEvent event =
         notificationMapper.toEmailVerificationRequest(
-            userExtension, Map.copyOf(variables), EventSource.serviceReference());
+            userExtension, Map.copyOf(variables), Source.serviceReference());
 
     notificationEventPublisher.publish(event);
 
@@ -83,12 +80,13 @@ public class NotificationService {
     GeneratedToken token =
         tokenService.generateToken(TokenType.PASSWORD_RESET, userExtension.getId());
 
-    Map<String, Serializable> variables = baseTokenVariables(organizationId, null);
-    variables.put("resetLink", verificationLinkBuilder.buildPasswordResetLink(token.plainToken()));
+    Map<String, Serializable> variables = baseTokenVariables(organizationId);
+    variables.put(
+        VERIFICATION_LINK_KEY, verificationLinkBuilder.buildPasswordResetLink(token.plainToken()));
 
-    NotificationRequest event =
+    NotificationRequestEvent event =
         notificationMapper.toPasswordResetRequest(
-            userExtension, Map.copyOf(variables), EventSource.serviceReference());
+            userExtension, Map.copyOf(variables), Source.serviceReference());
 
     notificationEventPublisher.publish(event);
 
@@ -99,18 +97,17 @@ public class NotificationService {
         userExtension.getId());
   }
 
-  public void sendPhoneVerification(
-      String organizationId, String organizationName, UserExtension userExtension) {
+  public void sendPhoneVerification(String organizationId, UserExtension userExtension) {
     GeneratedToken token = tokenService.generateToken(TokenType.SMS_OTP, userExtension.getId());
 
-    Map<String, Serializable> variables = baseTokenVariables(organizationId, organizationName);
+    Map<String, Serializable> variables = baseTokenVariables(organizationId);
     variables.put("username", userExtension.getUsername());
     variables.put("verificationCode", token.plainToken());
     variables.put("verificationExpiry", token.expiresAt().toString());
 
-    NotificationRequest event =
+    NotificationRequestEvent event =
         notificationMapper.toPhoneVerificationRequest(
-            userExtension, Map.copyOf(variables), EventSource.serviceReference());
+            userExtension, Map.copyOf(variables), Source.serviceReference());
 
     notificationEventPublisher.publish(event);
 
@@ -121,13 +118,9 @@ public class NotificationService {
         userExtension.getId());
   }
 
-  private Map<String, Serializable> baseTokenVariables(
-      String organizationId, String organizationName) {
+  private Map<String, Serializable> baseTokenVariables(String organizationId) {
     Map<String, Serializable> variables = new HashMap<>();
     variables.put("organizationId", organizationId);
-    if (organizationName != null) {
-      variables.put("organizationName", organizationName);
-    }
     return variables;
   }
 }

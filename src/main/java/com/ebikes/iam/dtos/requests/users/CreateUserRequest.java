@@ -15,7 +15,6 @@ import com.ebikes.iam.enums.UserRole;
 
 public record CreateUserRequest(
     @Length(min = 36, max = 36) String branchId,
-    @Size(max = 255) String branchName,
     @NotBlank(message = "Country code is required") @Size(min = 2, max = 2, message = "Country code must be 2 characters (ISO 3166-1 alpha-2)")
         String countryCode,
     @NotBlank(message = "Email is required") @Email(message = "Email must be valid") @Size(max = 255) String email,
@@ -23,7 +22,6 @@ public record CreateUserRequest(
     Boolean isPrimary,
     @NotBlank(message = "Last name is required") @Size(max = 255) String lastName,
     @Length(min = 36, max = 36) String organizationId,
-    @Size(max = 255) String organizationName,
     @NotBlank(message = "Phone number is required") @Pattern(
             regexp = "^\\+?[1-9]\\d{1,14}$",
             message = "Phone number must be valid E.164 format")

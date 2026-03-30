@@ -1,6 +1,5 @@
 package com.ebikes.iam.database.entities;
 
-import java.io.Serial;
 import java.time.OffsetDateTime;
 
 import jakarta.persistence.Column;
@@ -49,8 +48,6 @@ import lombok.experimental.SuperBuilder;
           columnNames = {"phone_number", "organization_id"})
     })
 public class Contact extends BaseEntity {
-
-  @Serial private static final long serialVersionUID = 1L;
 
   @Column(name = "branch_id", length = 36)
   private String branchId;

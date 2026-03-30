@@ -4,6 +4,9 @@
 > management through to verification, token handling, and outbox event reliability.
 
 ---
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=EbikesAfrica254_iam&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=EbikesAfrica254_iam)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=EbikesAfrica254_iam&metric=coverage)](https://sonarcloud.io/summary/new_code?id=EbikesAfrica254_iam)
+[![Publish Dev](https://github.com/EbikesAfrica254/iam/actions/workflows/publish-dev.yml/badge.svg)](https://github.com/EbikesAfrica254/iam/actions/workflows/publish-dev.yml)
 
 ## Overview
 
@@ -12,7 +15,7 @@ lifecycle of a user — from signup and provisioning through email and phone ver
 assignment, and soft deletion. Upstream services trigger provisioning flows directly via REST; this service owns what
 happens next.
 
-Access control is organisation and branch-aware by design: the same pipeline handles system administrators, organisation
+Access control is organization and branch-aware by design: the same pipeline handles system administrators, organization
 administrators, and branch-level users through a role-scoped membership model, each enforced via RBAC utilities at the
 point of user creation and context switching. Keycloak is the identity provider; this service maintains a local
 `UserExtension` record as the authoritative application-layer user state. An outbox pattern ensures audit events are
@@ -22,9 +25,9 @@ reliably published downstream even under partial failure.
 
 - User provisioning and signup (Keycloak + local extension record)
 - Email and phone verification, account activation, and password reset
-- Organisation and branch membership management
-- Role-based access control and user creation authorisation
-- Context switching (active organisation and branch per user session)
+- Organization and branch membership management
+- Role-based access control and user creation authorization
+- Context switching (active organization and branch per user session)
 - Token generation, validation, and consumption
 - Contact ingestion, resolution, and expiry
 - Outbox event log and retry management
@@ -32,7 +35,7 @@ reliably published downstream even under partial failure.
 
 **Does not own:**
 
-- Organisation creation and structure — belongs to Organisation service
+- Organization creation and structure — belongs to Organization service
 - Notification template management and dispatch — belongs to Notifications service
 - Assignment and routing logic — belongs to Assignment service
 - Payment processing — belongs to Payment & Billing
@@ -116,10 +119,10 @@ Coverage report: `target/site/jacoco/index.html`
 
 ## Environments & Deployment
 
-| Environment  | Trigger                         | Image tag           |
-|--------------|---------------------------------|---------------------|
-| `dev`        | Push to `dev` (after CI passes) | `dev` + `sha-*`     |
-| `staging`    | Push to `staging` (after CI)    | `staging` + `sha-*` |
-| `production` | Release Please semver tag       | `vX.Y.Z` + `sha-*`  |
+| Environment  | Trigger                         | Image tag       |
+|--------------|---------------------------------|-----------------|
+| `dev`        | Push to `dev` (after CI passes) | `dev` + `sha-*` |
+| `staging`    | Push to `staging` (after CI)    | `staging`       |
+| `production` | Release Please semver tag       | `vX.Y.Z` +      |
 
 Images are published to AWS ECR. CI pipeline: `.github/workflows/`

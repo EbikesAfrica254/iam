@@ -1,6 +1,6 @@
 package com.ebikes.iam.dtos.requests.filters;
 
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 import com.ebikes.iam.enums.OutboxStatus;
 
@@ -12,19 +12,12 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class OutboxFilter extends BaseFilter {
-  private LocalDate createdAtFrom;
-
-  private LocalDate createdAtTo;
-
+  private OffsetDateTime createdAtFrom;
+  private OffsetDateTime createdAtTo;
   private String eventType;
-
   private Integer maxRetryCount;
-
   private Integer minRetryCount;
-
   private OutboxStatus status;
-
-  private LocalDate updatedAtFrom;
-
-  private LocalDate updatedAtTo;
+  private OffsetDateTime updatedAtFrom;
+  private OffsetDateTime updatedAtTo;
 }

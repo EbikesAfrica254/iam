@@ -1,6 +1,5 @@
 package com.ebikes.iam.database.entities;
 
-import java.io.Serial;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -48,13 +47,8 @@ import lombok.experimental.SuperBuilder;
     })
 public class Membership extends BaseEntity {
 
-  @Serial private static final long serialVersionUID = 1L;
-
   @Column(name = "branch_id", length = 36)
   private String branchId;
-
-  @Column(name = "branch_name")
-  private String branchName;
 
   @Builder.Default
   @Column(name = "is_primary", nullable = false)
@@ -68,9 +62,6 @@ public class Membership extends BaseEntity {
 
   @Column(name = "organization_id", nullable = false, length = 36)
   private String organizationId;
-
-  @Column(name = "organization_name", nullable = false)
-  private String organizationName;
 
   @Builder.Default
   @Column(name = "roles", columnDefinition = "text[]", nullable = false)

@@ -1,7 +1,5 @@
 package com.ebikes.iam.database.entities.bases;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
@@ -21,9 +19,7 @@ import lombok.experimental.SuperBuilder;
 @MappedSuperclass
 @NoArgsConstructor
 @SuperBuilder
-public abstract class BaseEntity implements Serializable {
-
-  @Serial private static final long serialVersionUID = 1L;
+public abstract class BaseEntity {
 
   @Column(
       name = "created_at",

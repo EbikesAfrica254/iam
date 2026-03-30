@@ -26,6 +26,7 @@
         <disallow pkg="com.ebikes.iam.listeners"/>
         <disallow pkg="com.ebikes.iam.publishers"/>
         <disallow pkg="com.ebikes.iam.adapters"/>
+        <disallow pkg="com.ebikes.iam.services.users.provisioning"/>
     </subpackage>
 
     <!-- ========================================================= -->
@@ -102,8 +103,6 @@
         <disallow pkg="com.ebikes.iam.database.specifications"/>
         <disallow pkg="com.ebikes.iam.database.entities"/>
         <disallow pkg="com.ebikes.iam.database.entities.bases"/>
-        <disallow pkg="com.ebikes.iam.services.pricing"/>
-        <disallow pkg="com.ebikes.iam.services.iam"/>
         <disallow pkg="com.ebikes.iam.mappers"/>
         <disallow pkg="com.ebikes.iam.adapters"/>
     </subpackage>

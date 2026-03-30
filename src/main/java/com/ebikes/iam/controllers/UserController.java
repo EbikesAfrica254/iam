@@ -28,10 +28,8 @@ import com.ebikes.iam.dtos.responses.users.UserExtensionDetailResponse;
 import com.ebikes.iam.dtos.responses.users.UserExtensionSummaryResponse;
 import com.ebikes.iam.dtos.responses.users.UserProfileResponse;
 import com.ebikes.iam.enums.UserStatus;
-import com.ebikes.iam.services.users.UserCreationAuthorizationService;
 import com.ebikes.iam.services.users.UserExtensionService;
-import com.ebikes.iam.services.users.UserProvisioningService;
-import com.ebikes.iam.support.context.ExecutionContext;
+import com.ebikes.iam.services.users.provisioning.ProvisioningService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,19 +38,13 @@ import lombok.RequiredArgsConstructor;
 @RestController
 public class UserController {
 
-  private final UserCreationAuthorizationService userCreationAuthorizationService;
   private final UserExtensionService userExtensionService;
-  private final UserProvisioningService userProvisioningService;
+  private final ProvisioningService provisioningService;
 
   @PostMapping
   public ResponseEntity<SuccessResponse<Void>> create(
       @Valid @RequestBody CreateUserRequest request) {
-    userCreationAuthorizationService.authorize(
-        ExecutionContext.getUserId(),
-        request.branchId(),
-        request.organizationId(),
-        request.roles());
-    userProvisioningService.provisionUser(request);
+    provisioningService.provisionUser(request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(SuccessResponse.of(null, "User created successfully"));
   }
@@ -96,7 +88,7 @@ public class UserController {
 
   @PostMapping("/signup")
   public ResponseEntity<SuccessResponse<Void>> signup(@Valid @RequestBody SignupRequest request) {
-    userProvisioningService.provisionSignup(request);
+    provisioningService.provisionSignup(request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
             SuccessResponse.of(

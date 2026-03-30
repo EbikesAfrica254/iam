@@ -3,55 +3,50 @@ package com.ebikes.iam.support.context;
 import java.util.Collections;
 import java.util.Set;
 
-import com.ebikes.iam.constants.ApplicationConstants;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public final class ExecutionContext {
 
-  private static final ThreadLocal<ContextData> context = new ThreadLocal<>();
+  private static final ThreadLocal<Context> context = new ThreadLocal<>();
 
-  private ExecutionContext() {
-    // prevent instantiation
+  private ExecutionContext() {}
+
+  public sealed interface Context permits UserContext, SystemContext {}
+
+  public record UserContext(
+      String userId,
+      String activeOrganization,
+      String activeBranch,
+      String email,
+      String phoneNumber,
+      Set<String> groups,
+      Set<String> roles)
+      implements Context {
+
+    public UserContext {
+      groups = groups != null ? Set.copyOf(groups) : Collections.emptySet();
+      roles = roles != null ? Set.copyOf(roles) : Collections.emptySet();
+    }
   }
 
-  public static void clear() {
-    context.remove();
-  }
+  public record SystemContext() implements Context {}
 
-  public static String getActiveOrganization() {
-    ContextData data = context.get();
-    return data != null ? data.activeOrganization() : null;
-  }
-
-  public static String getActiveBranch() {
-    ContextData data = context.get();
-    return data != null ? data.activeBranch() : null;
-  }
-
-  public static String getEmail() {
-    ContextData data = context.get();
-    return data != null ? data.email() : null;
-  }
-
-  public static String getPhoneNumber() {
-    ContextData data = context.get();
-    return data != null ? data.phoneNumber() : null;
-  }
-
-  public static Set<String> getRoles() {
-    ContextData data = context.get();
-    return data != null ? data.roles() : Collections.emptySet();
+  public static Context get() {
+    Context ctx = context.get();
+    if (ctx == null) {
+      throw new IllegalStateException("No execution context on current thread");
+    }
+    return ctx;
   }
 
   public static String getUserId() {
-    ContextData data = context.get();
-    if (data == null) {
-      throw new IllegalStateException(
-          "getUserId() called with no execution context on current thread");
-    }
-    return data.userId();
+    return switch (get()) {
+      case UserContext uc -> uc.userId();
+      case SystemContext ignored ->
+          throw new IllegalStateException(
+              "getUserId() called in system context — use get() and pattern match");
+    };
   }
 
   public static void set(
@@ -67,40 +62,15 @@ public final class ExecutionContext {
       throw new IllegalArgumentException("userId cannot be null or blank");
     }
     context.set(
-        new ContextData(
-            activeBranch,
-            activeOrganization,
-            email,
-            groups != null ? groups : Collections.emptySet(),
-            phoneNumber,
-            roles != null ? roles : Collections.emptySet(),
-            userId));
+        new UserContext(
+            userId, activeOrganization, activeBranch, email, phoneNumber, groups, roles));
   }
 
   public static void setSystem() {
-    context.set(
-        new ContextData(
-            null,
-            null,
-            null,
-            Collections.emptySet(),
-            null,
-            Collections.emptySet(),
-            ApplicationConstants.SYSTEM_ID));
+    context.set(new SystemContext());
   }
 
-  public record ContextData(
-      String activeBranch,
-      String activeOrganization,
-      String email,
-      Set<String> groups,
-      String phoneNumber,
-      Set<String> roles,
-      String userId) {
-
-    public ContextData {
-      groups = Set.copyOf(groups);
-      roles = Set.copyOf(roles);
-    }
+  public static void clear() {
+    context.remove();
   }
 }

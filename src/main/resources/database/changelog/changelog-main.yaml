@@ -2,3 +2,6 @@ databaseChangeLog:
   - include:
       file: migrations/schema-changelog.yaml
       relativeToChangelogFile: true
+  - include:
+      file: migrations/fields-changelog.yaml
+      relativeToChangelogFile: true

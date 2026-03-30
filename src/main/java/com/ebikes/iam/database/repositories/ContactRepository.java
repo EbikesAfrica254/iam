@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.ebikes.iam.database.entities.Contact;
+import com.ebikes.iam.enums.ContactStatus;
 
 public interface ContactRepository
     extends JpaRepository<Contact, UUID>, JpaSpecificationExecutor<Contact> {
@@ -29,4 +30,6 @@ public interface ContactRepository
 
   List<Contact> findAllByPhoneNumberInAndOrganizationId(
       List<String> phoneNumbers, String organizationId);
+
+  List<Contact> findAllByStatusAndExpiresAtBefore(ContactStatus status, OffsetDateTime now);
 }

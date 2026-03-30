@@ -1,6 +1,6 @@
 package com.ebikes.iam.enums;
 
-import static com.ebikes.iam.constants.EventConstants.EventSource.HOST_SERVICE;
+import static com.ebikes.iam.constants.EventConstants.Source.IAM;
 
 import org.springframework.http.HttpStatus;
 
@@ -53,19 +53,19 @@ public enum ResponseCode {
 
   // Service-scoped — prefixed with service identifier
   INVALID_SECURITY_CODE(
-      HOST_SERVICE + ".INVALID_SECURITY_CODE",
+      IAM + ".INVALID_SECURITY_CODE",
       "The provided code is invalid or malformed.",
       HttpStatus.BAD_REQUEST),
   SECURITY_CODE_ALREADY_USED(
-      HOST_SERVICE + ".SECURITY_CODE_ALREADY_USED",
+      IAM + ".SECURITY_CODE_ALREADY_USED",
       "This code has already been used.",
       HttpStatus.BAD_REQUEST),
   SECURITY_CODE_EXPIRED(
-      HOST_SERVICE + ".SECURITY_CODE_EXPIRED",
+      IAM + ".SECURITY_CODE_EXPIRED",
       "The code has expired. Please request a new one.",
       HttpStatus.BAD_REQUEST),
   SECURITY_CODE_TYPE_MISMATCH(
-      HOST_SERVICE + ".SECURITY_CODE_TYPE_MISMATCH",
+      IAM + ".SECURITY_CODE_TYPE_MISMATCH",
       "The code type does not match the expected type.",
       HttpStatus.BAD_REQUEST);
 

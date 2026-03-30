@@ -12,6 +12,7 @@ import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -37,6 +38,7 @@ public class KeycloakConfiguration {
   private final ObjectMapper objectMapper;
 
   @Bean(destroyMethod = "close")
+  @ConditionalOnMissingBean
   public Keycloak keycloakAdminClient(ResteasyClient resteasyClient) {
     log.info("Initializing Keycloak admin client - server={}", keycloakProperties.getUrl());
 

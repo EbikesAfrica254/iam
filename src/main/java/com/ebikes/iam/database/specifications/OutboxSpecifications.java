@@ -1,14 +1,10 @@
 package com.ebikes.iam.database.specifications;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
@@ -28,15 +24,13 @@ public class OutboxSpecifications {
   public static final Set<String> ALLOWED_SORT_FIELDS =
       Set.of(FIELD_CREATED_AT, FIELD_EVENT_TYPE, FIELD_RETRY_COUNT, FIELD_STATUS, FIELD_UPDATED_AT);
 
-  private OutboxSpecifications() {
-    // prevent instantiation
-  }
+  private OutboxSpecifications() {}
 
   public static Specification<Outbox> buildSpecification(OutboxFilter filter) {
     return (root, query, criteriaBuilder) -> {
       List<Predicate> predicates = new ArrayList<>();
 
-      addIfPresent(
+      FilterUtilities.addIfPresent(
           predicates,
           root,
           query,
@@ -44,7 +38,7 @@ public class OutboxSpecifications {
           filter.getEventType(),
           hasEventType(filter.getEventType()));
 
-      addDateRange(
+      FilterUtilities.addDateRange(
           predicates,
           root,
           query,
@@ -52,7 +46,8 @@ public class OutboxSpecifications {
           FIELD_CREATED_AT,
           filter.getCreatedAtFrom(),
           filter.getCreatedAtTo());
-      addDateRange(
+
+      FilterUtilities.addDateRange(
           predicates,
           root,
           query,
@@ -96,31 +91,5 @@ public class OutboxSpecifications {
 
   public static Specification<Outbox> hasStatus(OutboxStatus status) {
     return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(FIELD_STATUS), status);
-  }
-
-  private static void addDateRange(
-      List<Predicate> predicates,
-      Root<Outbox> root,
-      CriteriaQuery<?> query,
-      CriteriaBuilder criteriaBuilder,
-      String field,
-      LocalDate from,
-      LocalDate to) {
-    if (from != null || to != null) {
-      Specification<Outbox> spec = FilterUtilities.dateRangeBetween(field, from, to);
-      predicates.add(spec.toPredicate(root, query, criteriaBuilder));
-    }
-  }
-
-  private static void addIfPresent(
-      List<Predicate> predicates,
-      Root<Outbox> root,
-      CriteriaQuery<?> query,
-      CriteriaBuilder criteriaBuilder,
-      String value,
-      Specification<Outbox> spec) {
-    if (value != null && !value.isBlank()) {
-      predicates.add(spec.toPredicate(root, query, criteriaBuilder));
-    }
   }
 }
