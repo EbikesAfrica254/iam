@@ -2,7 +2,7 @@ package com.ebikes.iam.listeners;
 
 import org.springframework.stereotype.Component;
 
-import com.ebikes.iam.constants.EventConstants.RoutingKeys;
+import com.ebikes.iam.constants.EventConstants.ExternalContracts;
 import com.ebikes.iam.dtos.events.incoming.BatchContactsEvent;
 import com.ebikes.iam.services.contacts.ContactService;
 import com.ebikes.iam.services.events.InboxService;
@@ -46,6 +46,6 @@ public class OrderEventsListener implements IncomingEventHandler {
 
   @Override
   public boolean matches(String routingKey) {
-    return routingKey.equals(RoutingKeys.ORDERS_MANIFEST_CONTACTS);
+    return routingKey.equals(ExternalContracts.ORDERS_MANIFEST_CONTACTS);
   }
 }
