@@ -7,6 +7,7 @@ import com.ebikes.iam.database.entities.UserExtension;
 import com.ebikes.iam.dtos.requests.memberships.CreateMembershipRequest;
 import com.ebikes.iam.dtos.requests.users.CreateUserRequest;
 import com.ebikes.iam.publishers.UserConfigurationEventPublisher;
+import com.ebikes.iam.services.notifications.NotificationService;
 import com.ebikes.iam.services.users.UserExtensionService;
 import com.ebikes.iam.services.users.membership.MembershipService;
 
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PersistenceService {
 
   private final MembershipService membershipService;
+  private final NotificationService notificationService;
   private final UserConfigurationEventPublisher userConfigurationEventPublisher;
   private final UserExtensionService userExtensionService;
 
@@ -33,6 +35,7 @@ public class PersistenceService {
     UserExtension extension =
         userExtensionService.create(keycloakUserId, organizationId, userRequest);
     membershipService.createRecord(keycloakUserId, groupPath, membershipRequest, extension);
+    notificationService.sendAccountVerification(organizationId, extension);
     userConfigurationEventPublisher.publishRequest(extension, organizationId);
   }
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.ebikes.iam.adapters.keycloak.KeycloakGroupAdapter;
 import com.ebikes.iam.adapters.keycloak.KeycloakUserAdapter;
 import com.ebikes.iam.configurations.properties.KeycloakProperties;
-import com.ebikes.iam.constants.ApplicationConstants;
+import com.ebikes.iam.constants.ApplicationConstants.Keycloak;
 import com.ebikes.iam.dtos.requests.memberships.CreateMembershipRequest;
 import com.ebikes.iam.dtos.requests.users.CreateUserRequest;
 import com.ebikes.iam.dtos.requests.users.SignupRequest;
@@ -76,15 +76,13 @@ public class ProvisioningService {
             request.email(), request.firstName(), request.lastName(), request.username());
 
     Map<String, String> attributes = new HashMap<>();
-    attributes.put(
-        ApplicationConstants.Keycloak.ACTIVE_ORGANIZATION_ATTRIBUTE, context.organizationId());
-    attributes.put(
-        ApplicationConstants.Keycloak.ACTIVE_ORGANIZATION_ROLES_ATTRIBUTE, context.rolesCsv());
-    attributes.put(ApplicationConstants.Keycloak.PHONE_NUMBER_ATTRIBUTE, request.phoneNumber());
-    attributes.put(ApplicationConstants.Keycloak.PHONE_NUMBER_VERIFIED_ATTRIBUTE, "false");
+    attributes.put(Keycloak.ACTIVE_ORGANIZATION_ATTRIBUTE, context.organizationId());
+    attributes.put(Keycloak.ACTIVE_ORGANIZATION_ROLES_ATTRIBUTE, context.rolesCsv());
+    attributes.put(Keycloak.PHONE_NUMBER_ATTRIBUTE, request.phoneNumber());
+    attributes.put(Keycloak.PHONE_NUMBER_VERIFIED_ATTRIBUTE, "false");
 
     if (context.branchId() != null) {
-      attributes.put(ApplicationConstants.Keycloak.ACTIVE_BRANCH_ATTRIBUTE, context.branchId());
+      attributes.put(Keycloak.ACTIVE_BRANCH_ATTRIBUTE, context.branchId());
     }
 
     keycloakUserAdapter.updateUserAttributes(keycloakUserId, attributes);
