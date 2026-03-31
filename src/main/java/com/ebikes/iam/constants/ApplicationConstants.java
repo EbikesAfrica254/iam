@@ -19,9 +19,9 @@ public final class ApplicationConstants {
   }
 
   public static final class Keycloak {
-    public static final String ACTIVE_BRANCH_ATTRIBUTE = "active_branch";
-    public static final String ACTIVE_ORGANIZATION_ATTRIBUTE = "active_organization";
-    public static final String ACTIVE_ORGANIZATION_ROLES_ATTRIBUTE = "active_organization_roles";
+    public static final String ACTIVE_BRANCH_ATTRIBUTE = "activeBranch";
+    public static final String ACTIVE_ORGANIZATION_ATTRIBUTE = "activeOrganization";
+    public static final String ACTIVE_ORGANIZATION_ROLES_ATTRIBUTE = "activeOrganizationRoles";
     public static final String PHONE_NUMBER_ATTRIBUTE = "phoneNumber";
     public static final String PHONE_NUMBER_VERIFIED_ATTRIBUTE = "phoneNumberVerified";
 
