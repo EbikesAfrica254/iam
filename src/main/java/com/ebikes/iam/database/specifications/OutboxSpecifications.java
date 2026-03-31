@@ -75,8 +75,7 @@ public class OutboxSpecifications {
   }
 
   public static Specification<Outbox> hasEventType(String eventType) {
-    return (root, query, criteriaBuilder) ->
-        criteriaBuilder.equal(root.get(FIELD_EVENT_TYPE), eventType);
+    return FilterUtilities.likeIgnoreCase(FIELD_EVENT_TYPE, eventType);
   }
 
   public static Specification<Outbox> hasMaxRetryCount(Integer maxRetryCount) {
