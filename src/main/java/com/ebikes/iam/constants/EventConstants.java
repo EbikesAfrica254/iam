@@ -77,7 +77,7 @@ public final class EventConstants {
 
       private Configuration() {}
 
-      public static final String REQUESTED = Source.IAM + ".user-extension.requested";
+      public static final String REQUESTED = Source.IAM + ".user-extension.configuration-requested";
     }
   }
 

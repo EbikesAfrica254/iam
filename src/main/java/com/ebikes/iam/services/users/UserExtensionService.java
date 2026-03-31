@@ -31,7 +31,6 @@ import com.ebikes.iam.enums.UserStatus;
 import com.ebikes.iam.exceptions.ResourceNotFoundException;
 import com.ebikes.iam.exceptions.ValidationException;
 import com.ebikes.iam.mappers.UserExtensionMapper;
-import com.ebikes.iam.services.notifications.NotificationService;
 import com.ebikes.iam.support.audit.AuditContext;
 import com.ebikes.iam.support.audit.AuditMetadataBuilder;
 import com.ebikes.iam.support.audit.AuditTemplate;
@@ -51,7 +50,6 @@ public class UserExtensionService {
 
   private final AuditTemplate auditTemplate;
   private final KeycloakUserAdapter keycloakUserAdapter;
-  private final NotificationService notificationService;
   private final UserExtensionMapper mapper;
   private final UserExtensionRepository repository;
 
@@ -77,26 +75,20 @@ public class UserExtensionService {
     UserExtension userExtension =
         auditTemplate.execute(
             auditContext,
-            () -> {
-              UserExtension extension =
-                  repository.save(
-                      UserExtension.builder()
-                          .branchId(request.branchId())
-                          .countryCode(request.countryCode())
-                          .email(request.email())
-                          .firstName(request.firstName())
-                          .keycloakUserId(keycloakUserId)
-                          .lastName(request.lastName())
-                          .organizationId(organizationId)
-                          .phoneNumber(request.phoneNumber())
-                          .status(UserStatus.INACTIVE)
-                          .username(request.username())
-                          .build());
-
-              notificationService.sendAccountVerification(organizationId, extension);
-
-              return extension;
-            },
+            () ->
+                repository.save(
+                    UserExtension.builder()
+                        .branchId(request.branchId())
+                        .countryCode(request.countryCode())
+                        .email(request.email())
+                        .firstName(request.firstName())
+                        .keycloakUserId(keycloakUserId)
+                        .lastName(request.lastName())
+                        .organizationId(organizationId)
+                        .phoneNumber(request.phoneNumber())
+                        .status(UserStatus.INACTIVE)
+                        .username(request.username())
+                        .build()),
             UserExtension::getId);
 
     log.info(
@@ -246,6 +238,7 @@ public class UserExtensionService {
 
   @Transactional(readOnly = true)
   public Page<UserExtensionSummaryResponse> search(UserExtensionFilter filter) {
+    log.debug("Filtering users by: {}", filter);
     Specification<UserExtension> spec = UserExtensionSpecifications.buildSpecification(filter);
     Pageable pageable =
         FilterUtilities.buildPageable(filter, UserExtensionSpecifications.ALLOWED_SORT_FIELDS);

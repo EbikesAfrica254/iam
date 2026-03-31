@@ -69,6 +69,10 @@ spring:
     parameters:
       searchPath: classpath:database/changelog/
 
+  mvc:
+    format:
+      date-time: iso
+
   rabbitmq:
     host: ${SPRING_RABBITMQ_HOST}
     port: ${SPRING_RABBITMQ_PORT}
@@ -155,6 +159,15 @@ security:
     - email
     - openid
     - profile
+
+seed:
+  system-admin:
+    email: ${SEED_SYSTEM_ADMIN_EMAIL}
+    first-name: ${SEED_SYSTEM_ADMIN_FIRST_NAME}
+    last-name: ${SEED_SYSTEM_ADMIN_LAST_NAME}
+    password: ${SEED_SYSTEM_ADMIN_PASSWORD}
+    phone-number: ${SEED_SYSTEM_ADMIN_PHONE_NUMBER}
+    username: ${SEED_SYSTEM_ADMIN_USERNAME}
 
 services:
   organizations:
