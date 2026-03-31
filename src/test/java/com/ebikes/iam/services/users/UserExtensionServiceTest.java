@@ -67,9 +67,7 @@ class UserExtensionServiceTest {
 
   @BeforeEach
   void setUp() {
-    service =
-        new UserExtensionService(
-            auditTemplate, keycloakUserAdapter, notificationService, mapper, repository);
+    service = new UserExtensionService(auditTemplate, keycloakUserAdapter, mapper, repository);
 
     ExecutionContext.set(
         UUID.randomUUID().toString(),
@@ -191,18 +189,6 @@ class UserExtensionServiceTest {
 
       assertThat(result).isEqualTo(saved);
       verify(repository).save(any(UserExtension.class));
-    }
-
-    @Test
-    @DisplayName("should send account verification notification after save")
-    void shouldSendAccountVerificationAfterSave() {
-      stubAuditSupplierWithExtractor();
-      UserExtension saved = UserExtensionFixtures.active(ORGANIZATION_ID);
-      when(repository.save(any())).thenReturn(saved);
-
-      service.create(KEYCLOAK_USER_ID, ORGANIZATION_ID, request());
-
-      verify(notificationService).sendAccountVerification(ORGANIZATION_ID, saved);
     }
   }
 
