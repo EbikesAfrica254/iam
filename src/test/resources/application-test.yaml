@@ -167,6 +167,16 @@ security:
     - openid
     - profile
 
+seed:
+  enabled: false
+  system-admin:
+    email: seed@test.local
+    first-name: Seed
+    last-name: Admin
+    password: SeedPass123!
+    phone-number: "+254700000000"
+    username: seed-admin
+
 services:
   organizations:
     base-url: http://localhost:0
