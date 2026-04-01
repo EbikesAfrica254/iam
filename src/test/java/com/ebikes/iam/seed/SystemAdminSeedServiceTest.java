@@ -64,7 +64,8 @@ class SystemAdminSeedServiceTest {
     }
 
     @Test
-    void seedIfAbsent_skipsAllProvisioning() {
+    @DisplayName("skips all provisioning steps when admin user already exists")
+    void seedIfAbsentSkipsAllProvisioning() {
       service.seedIfAbsent();
 
       verify(keycloakUserAdapter, never())
@@ -75,7 +76,8 @@ class SystemAdminSeedServiceTest {
     }
 
     @Test
-    void seedIfAbsent_leavesExecutionContextClear() {
+    @DisplayName("leaves execution context clear even when admin already exists")
+    void seedIfAbsentLeavesExecutionContextClear() {
       service.seedIfAbsent();
 
       assertThatThrownBy(ExecutionContext::get).isInstanceOf(IllegalStateException.class);
@@ -110,7 +112,8 @@ class SystemAdminSeedServiceTest {
     }
 
     @Test
-    void seedIfAbsent_createsKeycloakUser() {
+    @DisplayName("creates keycloak user with provided seed properties when admin is absent")
+    void seedIfAbsentCreatesKeycloakUser() {
       service.seedIfAbsent();
 
       verify(keycloakUserAdapter)
@@ -122,7 +125,8 @@ class SystemAdminSeedServiceTest {
     }
 
     @Test
-    void seedIfAbsent_updatesAttributesAndResetsPassword() {
+    @DisplayName("updates user attributes and resets password when admin is absent")
+    void seedIfAbsentUpdatesAttributesAndResetsPassword() {
       service.seedIfAbsent();
 
       verify(keycloakUserAdapter).updateUserAttributes(eq(KEYCLOAK_USER_ID), anyMap());
@@ -181,7 +185,10 @@ class SystemAdminSeedServiceTest {
     }
 
     @Test
-    void seedIfAbsent_compensatesAndRethrows_whenFailureAfterUserCreated() {
+    @DisplayName(
+        "compensates by deleting created user and rethrows exception when failure occurs after user"
+            + " creation")
+    void seedIfAbsentCompensatesAndRethrowsWhenFailureAfterUserCreated() {
       when(seedProperties.getFirstName()).thenReturn(FAKER.name().firstName());
       when(seedProperties.getLastName()).thenReturn(FAKER.name().lastName());
       when(seedProperties.getUsername()).thenReturn(FAKER.credentials().username());
@@ -200,7 +207,8 @@ class SystemAdminSeedServiceTest {
     }
 
     @Test
-    void seedIfAbsent_skipsCompensation_whenFailureBeforeUserCreated() {
+    @DisplayName("does not attempt compensation when failure occurs before user creation")
+    void seedIfAbsentSkipsCompensationWhenFailureBeforeUserCreated() {
       when(seedProperties.getFirstName()).thenReturn(FAKER.name().firstName());
       when(seedProperties.getLastName()).thenReturn(FAKER.name().lastName());
       when(seedProperties.getUsername()).thenReturn(FAKER.credentials().username());
@@ -215,7 +223,8 @@ class SystemAdminSeedServiceTest {
     }
 
     @Test
-    void seedIfAbsent_clearsExecutionContextAfterFailure() {
+    @DisplayName("clears execution context even when provisioning fails before user creation")
+    void seedIfAbsentClearsExecutionContextAfterFailure() {
       doThrow(new RuntimeException("fail"))
           .when(keycloakUserAdapter)
           .createUser(anyString(), anyString(), anyString(), anyString());
