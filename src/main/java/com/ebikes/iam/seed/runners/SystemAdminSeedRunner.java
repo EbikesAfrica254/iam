@@ -3,6 +3,7 @@ package com.ebikes.iam.seed.runners;
 import org.jspecify.annotations.NonNull;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
+@ConditionalOnProperty(name = "seed.enabled", havingValue = "true", matchIfMissing = true)
 @Order(1)
 @RequiredArgsConstructor
 @Slf4j
