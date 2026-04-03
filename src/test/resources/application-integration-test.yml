@@ -1,7 +1,4 @@
 spring:
-  autoconfigure:
-    exclude: []
-
   cloud:
     stream:
       default-binder: rabbit
