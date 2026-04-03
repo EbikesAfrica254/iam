@@ -11,6 +11,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OrganizationServiceProperties {
-
   private String baseUrl;
+  private String clientRegistrationId;
 }

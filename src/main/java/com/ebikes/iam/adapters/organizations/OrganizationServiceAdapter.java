@@ -3,12 +3,13 @@ package com.ebikes.iam.adapters.organizations;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-import com.ebikes.iam.configurations.properties.OrganizationServiceProperties;
 import com.ebikes.iam.dtos.adapters.organizations.Branch;
 import com.ebikes.iam.dtos.adapters.organizations.Organization;
 import com.ebikes.iam.dtos.responses.api.SuccessResponse;
@@ -28,12 +29,8 @@ public class OrganizationServiceAdapter {
   private final RestClient restClient;
 
   public OrganizationServiceAdapter(
-      RestClient.Builder restClientBuilder, OrganizationServiceProperties properties) {
-    this.restClient =
-        restClientBuilder
-            .baseUrl(properties.getBaseUrl())
-            .defaultHeader("Content-Type", "application/json")
-            .build();
+      @Qualifier("organizationServiceRestClient") RestClient restClient) {
+    this.restClient = restClient;
   }
 
   public List<Organization> findOrganizationsByIds(Set<String> organizationIds) {
@@ -42,9 +39,13 @@ public class OrganizationServiceAdapter {
     try {
       SuccessResponse<List<Organization>> response =
           restClient
-              .post()
-              .uri(ORGANIZATIONS_REFERENCE_ENDPOINT)
-              .body(organizationIds)
+              .get()
+              .uri(
+                  uriBuilder ->
+                      uriBuilder
+                          .path(ORGANIZATIONS_REFERENCE_ENDPOINT)
+                          .queryParam("ids", organizationIds)
+                          .build())
               .retrieve()
               .body(new ParameterizedTypeReference<>() {});
 
@@ -74,9 +75,13 @@ public class OrganizationServiceAdapter {
     try {
       SuccessResponse<List<Branch>> response =
           restClient
-              .post()
-              .uri(BRANCHES_REFERENCE_ENDPOINT, organizationId)
-              .body(branchIds)
+              .get()
+              .uri(
+                  uriBuilder ->
+                      uriBuilder
+                          .path(BRANCHES_REFERENCE_ENDPOINT)
+                          .queryParam("ids", branchIds)
+                          .build(organizationId))
               .retrieve()
               .body(new ParameterizedTypeReference<>() {});
 
@@ -104,7 +109,7 @@ public class OrganizationServiceAdapter {
   }
 
   private int extractStatus(RestClientException e) {
-    if (e instanceof org.springframework.web.client.HttpStatusCodeException statusEx) {
+    if (e instanceof HttpStatusCodeException statusEx) {
       return statusEx.getStatusCode().value();
     }
     return 500;
