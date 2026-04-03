@@ -23,6 +23,7 @@ import com.ebikes.iam.database.specifications.UserExtensionSpecifications;
 import com.ebikes.iam.dtos.requests.filters.UserExtensionFilter;
 import com.ebikes.iam.dtos.requests.users.CreateUserRequest;
 import com.ebikes.iam.dtos.requests.users.UpdateUserExtensionRequest;
+import com.ebikes.iam.dtos.responses.memberships.MembershipResponse;
 import com.ebikes.iam.dtos.responses.users.UserExtensionDetailResponse;
 import com.ebikes.iam.dtos.responses.users.UserExtensionSummaryResponse;
 import com.ebikes.iam.dtos.responses.users.UserProfileResponse;
@@ -30,6 +31,7 @@ import com.ebikes.iam.enums.ResponseCode;
 import com.ebikes.iam.enums.UserStatus;
 import com.ebikes.iam.exceptions.ResourceNotFoundException;
 import com.ebikes.iam.exceptions.ValidationException;
+import com.ebikes.iam.mappers.MembershipEnricher;
 import com.ebikes.iam.mappers.UserExtensionMapper;
 import com.ebikes.iam.support.audit.AuditContext;
 import com.ebikes.iam.support.audit.AuditMetadataBuilder;
@@ -50,6 +52,7 @@ public class UserExtensionService {
 
   private final AuditTemplate auditTemplate;
   private final KeycloakUserAdapter keycloakUserAdapter;
+  private final MembershipEnricher membershipEnricher;
   private final UserExtensionMapper mapper;
   private final UserExtensionRepository repository;
 
@@ -201,11 +204,16 @@ public class UserExtensionService {
                     new ResourceNotFoundException(
                         ResponseCode.RESOURCE_NOT_FOUND, "User not found"));
 
-    Membership activeMembership =
+    List<MembershipResponse> enrichedMemberships =
+        membershipEnricher.enrich(List.copyOf(user.getMemberships()));
+
+    MembershipResponse activeMembership =
         findActiveMembership(user.getMemberships(), ctx.activeOrganization(), ctx.activeBranch())
+            .flatMap(
+                m -> enrichedMemberships.stream().filter(r -> r.id().equals(m.getId())).findFirst())
             .orElseThrow(() -> new IllegalStateException("No active membership found for user"));
 
-    return mapper.toProfileResponse(user, activeMembership, List.copyOf(user.getMemberships()));
+    return mapper.toProfileResponse(user, activeMembership, enrichedMemberships);
   }
 
   @Transactional
