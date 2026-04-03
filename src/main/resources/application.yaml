@@ -80,6 +80,17 @@ spring:
 
   security:
     oauth2:
+      client:
+        registration:
+          organizations:
+            provider: keycloak
+            client-id: ${IAM_CLIENT_ID}
+            client-secret: ${IAM_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+            client-authentication-method: client_secret_basic
+        provider:
+          keycloak:
+            issuer-uri: ${SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI}
       resourceserver:
         jwt:
           issuer-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI}
@@ -113,8 +124,8 @@ contact:
   stale-threshold-hours: ${CONTACT_STALE_THRESHOLD_HOURS}
 
 keycloak:
-  client-id: ${KEYCLOAK_CLIENT_ID}
-  client-secret: ${KEYCLOAK_CLIENT_SECRET}
+  client-id: ${IAM_CLIENT_ID}
+  client-secret: ${IAM_CLIENT_SECRET}
   realm: ${KEYCLOAK_REALM}
   url: ${KEYCLOAK_URL}
   web-client-id: ${KEYCLOAK_WEB_CLIENT_ID}
@@ -172,6 +183,7 @@ seed:
 services:
   organizations:
     base-url: ${ORGANIZATION_SERVICE_BASE_URL}
+    client-registration-id: organizations
 
 token:
   account-activation:
