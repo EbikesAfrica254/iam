@@ -3,12 +3,12 @@ package com.ebikes.iam.adapters.organizations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +23,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-import com.ebikes.iam.configurations.properties.OrganizationServiceProperties;
 import com.ebikes.iam.dtos.adapters.organizations.Branch;
 import com.ebikes.iam.dtos.adapters.organizations.Organization;
 import com.ebikes.iam.dtos.responses.api.SuccessResponse;
@@ -36,42 +35,31 @@ class OrganizationServiceAdapterTest {
   private static final String ORGANIZATION_ID = "org-1";
   private static final String BRANCH_ID = "branch-1";
 
-  @Mock private RestClient.Builder restClientBuilder;
   @Mock private RestClient restClient;
-  @Mock private OrganizationServiceProperties properties;
 
   private OrganizationServiceAdapter adapter;
 
   private RestClient.ResponseSpec responseSpec;
-  private RestClient.RequestBodyUriSpec requestBodyUriSpec;
-  private RestClient.RequestBodySpec requestBodySpec;
 
   @BeforeEach
+  @SuppressWarnings("unchecked")
   void setUp() {
-    when(properties.getBaseUrl()).thenReturn("http://localhost:8080");
-    when(restClientBuilder.baseUrl(anyString())).thenReturn(restClientBuilder);
-    when(restClientBuilder.defaultHeader(anyString(), anyString())).thenReturn(restClientBuilder);
-    when(restClientBuilder.build()).thenReturn(restClient);
+    adapter = new OrganizationServiceAdapter(restClient);
 
-    adapter = new OrganizationServiceAdapter(restClientBuilder, properties);
-
-    requestBodyUriSpec = mock(RestClient.RequestBodyUriSpec.class);
-    requestBodySpec = mock(RestClient.RequestBodySpec.class);
+    @SuppressWarnings("rawtypes")
+    RestClient.RequestHeadersUriSpec requestHeadersUriSpec =
+        mock(RestClient.RequestHeadersUriSpec.class);
+    RestClient.RequestHeadersSpec<?> requestHeadersSpec = mock(RestClient.RequestHeadersSpec.class);
     responseSpec = mock(RestClient.ResponseSpec.class);
 
-    when(restClient.post()).thenReturn(requestBodyUriSpec);
-    when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
-    when(requestBodySpec.retrieve()).thenReturn(responseSpec);
+    when(restClient.get()).thenReturn(requestHeadersUriSpec);
+    when(requestHeadersUriSpec.uri(any(Function.class))).thenReturn(requestHeadersSpec);
+    when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
   }
 
   @Nested
   @DisplayName("findOrganizationsByIds")
   class FindOrganizationsByIds {
-
-    @BeforeEach
-    void setUp() {
-      when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
-    }
 
     @Test
     @DisplayName("should return organisations from successful response")
@@ -138,11 +126,6 @@ class OrganizationServiceAdapterTest {
   @Nested
   @DisplayName("findBranchesByIds")
   class FindBranchesByIds {
-
-    @BeforeEach
-    void setUp() {
-      when(requestBodyUriSpec.uri(anyString(), (Object[]) any())).thenReturn(requestBodySpec);
-    }
 
     @Test
     @DisplayName("should return branches from successful response")

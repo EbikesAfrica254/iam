@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.ebikes.iam.services.users.UserExtensionService;
 import com.ebikes.iam.services.users.provisioning.ProvisioningService;
+import com.ebikes.iam.support.fixtures.SecurityFixtures;
 import com.ebikes.iam.support.fixtures.UserExtensionResponseFixtures;
 import com.ebikes.iam.support.fixtures.UserRequestFixtures;
 import com.ebikes.iam.support.infrastructure.AbstractControllerTest;
@@ -49,7 +50,7 @@ class UserControllerTest extends AbstractControllerTest {
       mockMvc
           .perform(
               post("/users")
-                  .with(authenticatedJwt())
+                  .with(SecurityFixtures.authenticatedJwt())
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(objectMapper.writeValueAsString(UserRequestFixtures.createUser())))
           .andExpect(status().isCreated());
@@ -63,20 +64,11 @@ class UserControllerTest extends AbstractControllerTest {
       mockMvc
           .perform(
               post("/users")
-                  .with(authenticatedJwt())
+                  .with(SecurityFixtures.authenticatedJwt())
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(
-                      """
-                      {
-                        "countryCode": "KE",
-                        "email": "",
-                        "firstName": "John",
-                        "lastName": "Doe",
-                        "phoneNumber": "+254700000001",
-                        "roles": ["CUSTOMER"],
-                        "username": "johndoe"
-                      }
-                      """))
+                      objectMapper.writeValueAsString(
+                          UserRequestFixtures.createUserWithBlankEmail())))
           .andExpect(status().isBadRequest());
     }
 
@@ -86,20 +78,11 @@ class UserControllerTest extends AbstractControllerTest {
       mockMvc
           .perform(
               post("/users")
-                  .with(authenticatedJwt())
+                  .with(SecurityFixtures.authenticatedJwt())
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(
-                      """
-                      {
-                        "countryCode": "KE",
-                        "email": "test@ebikes.test",
-                        "firstName": "John",
-                        "lastName": "Doe",
-                        "phoneNumber": "+254700000001",
-                        "roles": [],
-                        "username": "johndoe"
-                      }
-                      """))
+                      objectMapper.writeValueAsString(
+                          UserRequestFixtures.createUserWithEmptyRoles())))
           .andExpect(status().isBadRequest());
     }
 
@@ -143,16 +126,7 @@ class UserControllerTest extends AbstractControllerTest {
                   .with(anonymous())
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(
-                      """
-                      {
-                        "countryCode": "KE",
-                        "email": "",
-                        "firstName": "John",
-                        "lastName": "Doe",
-                        "phoneNumber": "+254700000001",
-                        "username": "johndoe"
-                      }
-                      """))
+                      objectMapper.writeValueAsString(UserRequestFixtures.signupWithBlankEmail())))
           .andExpect(status().isBadRequest());
     }
 
@@ -165,16 +139,8 @@ class UserControllerTest extends AbstractControllerTest {
                   .with(anonymous())
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(
-                      """
-                      {
-                        "countryCode": "KE",
-                        "email": "test@ebikes.test",
-                        "firstName": "John",
-                        "lastName": "Doe",
-                        "phoneNumber": "",
-                        "username": "johndoe"
-                      }
-                      """))
+                      objectMapper.writeValueAsString(
+                          UserRequestFixtures.signupWithBlankPhoneNumber())))
           .andExpect(status().isBadRequest());
     }
 
@@ -201,7 +167,7 @@ class UserControllerTest extends AbstractControllerTest {
       when(userExtensionService.findById(any())).thenReturn(UserExtensionResponseFixtures.detail());
 
       mockMvc
-          .perform(get("/users/{id}", UUID.randomUUID()).with(authenticatedJwt()))
+          .perform(get("/users/{id}", UUID.randomUUID()).with(SecurityFixtures.authenticatedJwt()))
           .andExpect(status().isOk());
 
       verify(userExtensionService).findById(any());
@@ -225,7 +191,9 @@ class UserControllerTest extends AbstractControllerTest {
     void shouldReturn200WithUserProfile() throws Exception {
       when(userExtensionService.me()).thenReturn(UserExtensionResponseFixtures.profile());
 
-      mockMvc.perform(get("/users/me").with(authenticatedJwt())).andExpect(status().isOk());
+      mockMvc
+          .perform(get("/users/me").with(SecurityFixtures.authenticatedJwt()))
+          .andExpect(status().isOk());
 
       verify(userExtensionService).me();
     }
@@ -246,7 +214,9 @@ class UserControllerTest extends AbstractControllerTest {
     void shouldReturn200WithPaginatedResults() throws Exception {
       when(userExtensionService.search(any())).thenReturn(Page.empty());
 
-      mockMvc.perform(get("/users").with(authenticatedJwt())).andExpect(status().isOk());
+      mockMvc
+          .perform(get("/users").with(SecurityFixtures.authenticatedJwt()))
+          .andExpect(status().isOk());
 
       verify(userExtensionService).search(any());
     }
@@ -271,17 +241,9 @@ class UserControllerTest extends AbstractControllerTest {
       mockMvc
           .perform(
               put("/users/{id}", UUID.randomUUID())
-                  .with(authenticatedJwt())
+                  .with(SecurityFixtures.authenticatedJwt())
                   .contentType(MediaType.APPLICATION_JSON)
-                  .content(
-                      """
-                      {
-                        "firstName": "Updated",
-                        "lastName": "Name",
-                        "emailVerified": false,
-                        "phoneNumberVerified": false
-                      }
-                      """))
+                  .content(objectMapper.writeValueAsString(UserRequestFixtures.updateUser())))
           .andExpect(status().isOk());
 
       verify(userExtensionService).update(any(), any());
@@ -295,14 +257,7 @@ class UserControllerTest extends AbstractControllerTest {
               put("/users/{id}", UUID.randomUUID())
                   .with(anonymous())
                   .contentType(MediaType.APPLICATION_JSON)
-                  .content(
-                      """
-                      {
-                        "firstName": "Updated",
-                        "emailVerified": false,
-                        "phoneNumberVerified": false
-                      }
-                      """))
+                  .content(objectMapper.writeValueAsString(UserRequestFixtures.updateUser())))
           .andExpect(status().isUnauthorized());
     }
   }
@@ -317,7 +272,7 @@ class UserControllerTest extends AbstractControllerTest {
       mockMvc
           .perform(
               put("/users/{id}/status", UUID.randomUUID())
-                  .with(authenticatedJwt())
+                  .with(SecurityFixtures.authenticatedJwt())
                   .param("status", "ACTIVE"))
           .andExpect(status().isOk());
 
@@ -344,7 +299,8 @@ class UserControllerTest extends AbstractControllerTest {
     @DisplayName("should return 200 when user exists")
     void shouldReturn200WhenUserExists() throws Exception {
       mockMvc
-          .perform(delete("/users/{id}", UUID.randomUUID()).with(authenticatedJwt()))
+          .perform(
+              delete("/users/{id}", UUID.randomUUID()).with(SecurityFixtures.authenticatedJwt()))
           .andExpect(status().isOk());
 
       verify(userExtensionService).delete(any());
@@ -367,7 +323,9 @@ class UserControllerTest extends AbstractControllerTest {
     @DisplayName("should return 200 when user exists")
     void shouldReturn200WhenUserExists() throws Exception {
       mockMvc
-          .perform(delete("/users/{id}/deprovision", UUID.randomUUID()).with(authenticatedJwt()))
+          .perform(
+              delete("/users/{id}/deprovision", UUID.randomUUID())
+                  .with(SecurityFixtures.authenticatedJwt()))
           .andExpect(status().isOk());
 
       verify(userExtensionService).deprovision(any());
@@ -390,7 +348,9 @@ class UserControllerTest extends AbstractControllerTest {
     @DisplayName("should return 200 when user exists")
     void shouldReturn200WhenUserExists() throws Exception {
       mockMvc
-          .perform(post("/users/{id}/restore", UUID.randomUUID()).with(authenticatedJwt()))
+          .perform(
+              post("/users/{id}/restore", UUID.randomUUID())
+                  .with(SecurityFixtures.authenticatedJwt()))
           .andExpect(status().isOk());
 
       verify(userExtensionService).restore(any());

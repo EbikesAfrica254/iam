@@ -3,7 +3,6 @@ package com.ebikes.iam.services.users;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,6 +33,7 @@ import com.ebikes.iam.database.repositories.UserExtensionRepository;
 import com.ebikes.iam.dtos.requests.filters.UserExtensionFilter;
 import com.ebikes.iam.dtos.requests.users.CreateUserRequest;
 import com.ebikes.iam.dtos.requests.users.UpdateUserExtensionRequest;
+import com.ebikes.iam.dtos.responses.memberships.MembershipResponse;
 import com.ebikes.iam.dtos.responses.users.UserExtensionDetailResponse;
 import com.ebikes.iam.dtos.responses.users.UserExtensionSummaryResponse;
 import com.ebikes.iam.dtos.responses.users.UserProfileResponse;
@@ -41,8 +41,8 @@ import com.ebikes.iam.enums.UserRole;
 import com.ebikes.iam.enums.UserStatus;
 import com.ebikes.iam.exceptions.ResourceNotFoundException;
 import com.ebikes.iam.exceptions.ValidationException;
+import com.ebikes.iam.mappers.MembershipEnricher;
 import com.ebikes.iam.mappers.UserExtensionMapper;
-import com.ebikes.iam.services.notifications.NotificationService;
 import com.ebikes.iam.support.audit.AuditTemplate;
 import com.ebikes.iam.support.audit.ThrowingRunnable;
 import com.ebikes.iam.support.audit.ThrowingSupplier;
@@ -59,7 +59,7 @@ class UserExtensionServiceTest {
 
   @Mock private AuditTemplate auditTemplate;
   @Mock private KeycloakUserAdapter keycloakUserAdapter;
-  @Mock private NotificationService notificationService;
+  @Mock private MembershipEnricher membershipEnricher;
   @Mock private UserExtensionMapper mapper;
   @Mock private UserExtensionRepository repository;
 
@@ -67,7 +67,9 @@ class UserExtensionServiceTest {
 
   @BeforeEach
   void setUp() {
-    service = new UserExtensionService(auditTemplate, keycloakUserAdapter, mapper, repository);
+    service =
+        new UserExtensionService(
+            auditTemplate, keycloakUserAdapter, membershipEnricher, mapper, repository);
 
     ExecutionContext.set(
         UUID.randomUUID().toString(),
@@ -364,9 +366,11 @@ class UserExtensionServiceTest {
     @Test
     @DisplayName("should return profile response for matching org membership")
     void shouldReturnProfileForMatchingOrgMembership() {
+      UUID membershipId = UUID.randomUUID();
       UserExtension user = UserExtensionFixtures.active(ORGANIZATION_ID);
       Membership membership =
           Membership.builder()
+              .id(membershipId)
               .userExtension(user)
               .keycloakUserId(user.getKeycloakUserId())
               .organizationId(ORGANIZATION_ID)
@@ -374,6 +378,19 @@ class UserExtensionServiceTest {
               .isPrimary(true)
               .build();
       user.getMemberships().add(membership);
+
+      MembershipResponse activeMembershipResponse =
+          new MembershipResponse(
+              membershipId,
+              null,
+              null,
+              true,
+              "/" + ORGANIZATION_ID,
+              user.getKeycloakUserId(),
+              ORGANIZATION_ID,
+              null,
+              Set.of(),
+              null);
 
       UserProfileResponse response =
           new UserProfileResponse(
@@ -392,7 +409,10 @@ class UserExtensionServiceTest {
               user.getUsername());
 
       when(repository.findByKeycloakUserIdWithMemberships(any())).thenReturn(Optional.of(user));
-      when(mapper.toProfileResponse(eq(user), eq(membership), any())).thenReturn(response);
+      when(membershipEnricher.enrich(any())).thenReturn(List.of(activeMembershipResponse));
+      when(mapper.toProfileResponse(
+              user, activeMembershipResponse, List.of(activeMembershipResponse)))
+          .thenReturn(response);
 
       assertThat(service.me()).isEqualTo(response);
     }

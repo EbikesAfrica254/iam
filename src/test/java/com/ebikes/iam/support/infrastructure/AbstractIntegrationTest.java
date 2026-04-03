@@ -16,7 +16,7 @@ import com.ebikes.iam.support.fixtures.SecurityFixtures;
 @ActiveProfiles({"test", "integration-test"})
 @AutoConfigureMockMvc
 @ExtendWith(WithExecutionContext.class)
-@Import({IntegrationContainersConfig.class, MockKeycloakConfig.class})
+@Import({IntegrationContainersConfig.class, MockKeycloakConfig.class, MockOAuth2ClientConfig.class})
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Tag("integration")
 public abstract class AbstractIntegrationTest {

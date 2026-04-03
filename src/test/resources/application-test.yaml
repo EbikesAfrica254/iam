@@ -12,6 +12,8 @@ spring:
       - org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
       - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - org.springframework.boot.security.oauth2.client.autoconfigure.OAuth2ClientAutoConfiguration
+      - org.springframework.boot.security.oauth2.client.autoconfigure.servlet.OAuth2ClientWebSecurityAutoConfiguration
 
   application:
     name: ebikes-iam
@@ -88,6 +90,17 @@ spring:
 
   security:
     oauth2:
+      client:
+        registration:
+          organizations:
+            provider: keycloak
+            client-id: test-client
+            client-secret: test-secret
+            authorization-grant-type: client_credentials
+            client-authentication-method: client_secret_basic
+        provider:
+            keycloak:
+                issuer-uri: http://localhost:0/realms/ebikes
       resourceserver:
         jwt:
           # Placeholder values — never resolved directly from this file.
@@ -116,11 +129,11 @@ clients:
     base-url: http://localhost
     verification:
       account-activation:
-        path: /activate
+        path: /verify
       email:
         path: /verify
       password-reset:
-        path: /reset-password
+        path: /verify
 
 contact:
   expiry-cron: 0 0 2 * * *
@@ -141,6 +154,22 @@ keycloak:
   # @DynamicPropertySource.
   url: http://localhost:0
   web-client-id: test-web-client
+
+logging:
+  level:
+    root: INFO
+    com.ebikes.iam: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+management:
+  endpoint:
+    health:
+      show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
 
 notifications:
   enabled: false
@@ -180,6 +209,7 @@ seed:
 services:
   organizations:
     base-url: http://localhost:0
+    client-registration-id: organizations
 
 token:
   account-activation:

@@ -109,4 +109,16 @@
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
 
+    <!--
+      EI_EXPOSE_REP2: false positive on Spring-managed collaborator injection.
+
+      SpotBugs flags storing an injected RestClient by reference as representation
+      exposure. RestClient is a Spring-managed interface with no externally mutable
+      state — defensive copying is neither meaningful nor possible for interface types.
+    -->
+    <Match>
+        <Class name="com.ebikes.iam.adapters.organizations.OrganizationServiceAdapter"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+
 </FindBugsFilter>
