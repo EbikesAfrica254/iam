@@ -43,11 +43,6 @@ public class SecurityConfiguration {
   private final SecurityProperties securityProperties;
 
   @Bean
-  public ContextFilter contextFilter() {
-    return new ContextFilter();
-  }
-
-  @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtDecoder decoder) {
     return http.csrf(AbstractHttpConfigurer::disable)
         .cors(AbstractHttpConfigurer::disable)
