@@ -33,6 +33,11 @@ public class AuthorizationService {
       return;
     }
 
+    if (ExecutionContext.get() instanceof ExecutionContext.UserContext uc
+        && uc.roles().contains(UserRole.SYSTEM_ADMIN.name())) {
+      return;
+    }
+
     String creatorBranchId = ctx.activeBranch();
 
     Membership creatorMembership =
