@@ -37,10 +37,8 @@ class OrganizationCacheServiceTest {
   private static final String BRANCH_NAME = "Test Branch";
   private static final int TTL_MINUTES = 10;
 
-  private static final String ORGANIZATION_CACHE_KEY =
-      "organizations:organization:" + ORGANIZATION_ID;
-  private static final String BRANCH_CACHE_KEY =
-      "organizations:branch:" + ORGANIZATION_ID + ":" + BRANCH_ID;
+  private static final String ORGANIZATION_CACHE_KEY = "iam:organization:" + ORGANIZATION_ID;
+  private static final String BRANCH_CACHE_KEY = "iam:branch:" + ORGANIZATION_ID + ":" + BRANCH_ID;
 
   @Mock private CacheProperties cacheProperties;
   @Mock private OrganizationServiceAdapter adapter;
@@ -115,9 +113,8 @@ class OrganizationCacheServiceTest {
       String missOrgId = "org-miss";
       String missOrgName = "Miss Org";
 
-      when(valueOperations.get("organizations:organization:" + cachedOrgId))
-          .thenReturn(cachedOrgName);
-      when(valueOperations.get("organizations:organization:" + missOrgId)).thenReturn(null);
+      when(valueOperations.get("iam:organization:" + cachedOrgId)).thenReturn(cachedOrgName);
+      when(valueOperations.get("iam:organization:" + missOrgId)).thenReturn(null);
       when(adapter.findOrganizationsByIds(Set.of(missOrgId)))
           .thenReturn(List.of(new Organization(missOrgId, missOrgName)));
       when(cacheProperties.getTtlMinutes()).thenReturn(TTL_MINUTES);
@@ -175,9 +172,9 @@ class OrganizationCacheServiceTest {
       String missBranchId = "branch-miss";
       String missBranchName = "Miss Branch";
 
-      when(valueOperations.get("organizations:branch:" + ORGANIZATION_ID + ":" + cachedBranchId))
+      when(valueOperations.get("iam:branch:" + ORGANIZATION_ID + ":" + cachedBranchId))
           .thenReturn(cachedBranchName);
-      when(valueOperations.get("organizations:branch:" + ORGANIZATION_ID + ":" + missBranchId))
+      when(valueOperations.get("iam:branch:" + ORGANIZATION_ID + ":" + missBranchId))
           .thenReturn(null);
       when(adapter.findBranchesByIds(ORGANIZATION_ID, Set.of(missBranchId)))
           .thenReturn(List.of(new Branch(missBranchId, missBranchName)));
