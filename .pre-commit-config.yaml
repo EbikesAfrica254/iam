@@ -26,9 +26,9 @@ repos:
 
   - repo: local
     hooks:
-      - id: spotless-check
-        name: Spotless check
-        entry: ./mvnw -q spotless:check
+      - id: spotless-apply
+        name: Spotless apply
+        entry: ./mvnw -q spotless:apply
         language: system
         pass_filenames: false
         files: ^(pom\.xml|src/main/java/.*\.java|src/test/java/.*\.java|.*\.md|\.gitignore|\.gitattributes)$
