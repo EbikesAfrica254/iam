@@ -22,8 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OrganizationCacheService {
 
-  private static final String BRANCH_KEY_PREFIX = "organizations:branch:";
-  private static final String ORGANIZATIONS_KEY_PREFIX = "organizations:organization:";
+  private static final String BRANCH_KEY_PREFIX = "iam:branch:";
+  private static final String ORGANIZATIONS_KEY_PREFIX = "iam:organization:";
 
   private final CacheProperties cacheProperties;
   private final OrganizationServiceAdapter adapter;
