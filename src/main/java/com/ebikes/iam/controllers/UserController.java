@@ -1,5 +1,6 @@
 package com.ebikes.iam.controllers;
 
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
@@ -25,6 +26,7 @@ import com.ebikes.iam.dtos.requests.users.UpdateUserExtensionRequest;
 import com.ebikes.iam.dtos.responses.api.PaginatedResponse;
 import com.ebikes.iam.dtos.responses.api.SuccessResponse;
 import com.ebikes.iam.dtos.responses.users.UserExtensionDetailResponse;
+import com.ebikes.iam.dtos.responses.users.UserExtensionReference;
 import com.ebikes.iam.dtos.responses.users.UserExtensionSummaryResponse;
 import com.ebikes.iam.dtos.responses.users.UserProfileResponse;
 import com.ebikes.iam.enums.UserStatus;
@@ -84,6 +86,14 @@ public class UserController {
       @ModelAttribute UserExtensionFilter filter) {
     Page<UserExtensionSummaryResponse> page = userExtensionService.search(filter);
     return ResponseEntity.ok(PaginatedResponse.from("Users retrieved successfully.", page));
+  }
+
+  @GetMapping("/reference")
+  public ResponseEntity<SuccessResponse<List<UserExtensionReference>>> findReferences(
+      @RequestParam List<String> ids) {
+    List<UserExtensionReference> references =
+        userExtensionService.findByReferenceKeycloakUserIds(ids);
+    return ResponseEntity.ok(SuccessResponse.of(references));
   }
 
   @PostMapping("/signup")

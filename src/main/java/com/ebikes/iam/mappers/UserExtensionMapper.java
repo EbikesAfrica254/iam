@@ -10,6 +10,7 @@ import org.mapstruct.ReportingPolicy;
 import com.ebikes.iam.database.entities.UserExtension;
 import com.ebikes.iam.dtos.responses.memberships.MembershipResponse;
 import com.ebikes.iam.dtos.responses.users.UserExtensionDetailResponse;
+import com.ebikes.iam.dtos.responses.users.UserExtensionReference;
 import com.ebikes.iam.dtos.responses.users.UserExtensionSummaryResponse;
 import com.ebikes.iam.dtos.responses.users.UserProfileResponse;
 
@@ -21,8 +22,6 @@ public interface UserExtensionMapper {
 
   UserExtensionDetailResponse toDetailResponse(UserExtension userExtension);
 
-  UserExtensionSummaryResponse toSummaryResponse(UserExtension userExtension);
-
   @Mapping(target = "activeMembership", source = "activeMembership")
   @Mapping(target = "createdAt", source = "userExtension.createdAt")
   @Mapping(target = "id", source = "userExtension.id")
@@ -31,4 +30,8 @@ public interface UserExtensionMapper {
       UserExtension userExtension,
       MembershipResponse activeMembership,
       List<MembershipResponse> memberships);
+
+  UserExtensionReference toReference(UserExtension userExtension);
+
+  UserExtensionSummaryResponse toSummaryResponse(UserExtension userExtension);
 }

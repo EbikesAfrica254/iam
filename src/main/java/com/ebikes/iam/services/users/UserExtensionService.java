@@ -25,6 +25,7 @@ import com.ebikes.iam.dtos.requests.users.CreateUserRequest;
 import com.ebikes.iam.dtos.requests.users.UpdateUserExtensionRequest;
 import com.ebikes.iam.dtos.responses.memberships.MembershipResponse;
 import com.ebikes.iam.dtos.responses.users.UserExtensionDetailResponse;
+import com.ebikes.iam.dtos.responses.users.UserExtensionReference;
 import com.ebikes.iam.dtos.responses.users.UserExtensionSummaryResponse;
 import com.ebikes.iam.dtos.responses.users.UserProfileResponse;
 import com.ebikes.iam.enums.ResponseCode;
@@ -171,6 +172,11 @@ public class UserExtensionService {
   }
 
   @Transactional(readOnly = true)
+  public List<UserExtensionReference> findByReferenceKeycloakUserIds(List<String> keycloakUserIds) {
+    return repository.findByKeycloakUserIdIn(keycloakUserIds);
+  }
+
+  @Transactional(readOnly = true)
   public Optional<UserExtension> findUserExtensionByEmail(String email) {
     return repository.findByEmail(email);
   }
@@ -191,6 +197,7 @@ public class UserExtensionService {
     return repository.findByPhoneNumber(phoneNumber);
   }
 
+  @Transactional(readOnly = true)
   public UserProfileResponse me() {
     if (!(ExecutionContext.get() instanceof ExecutionContext.UserContext ctx)) {
       throw new IllegalStateException("me() called outside of user context");
